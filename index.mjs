@@ -3,6 +3,7 @@
 import Service from './src/Service';
 import logd from 'logd';
 import ConsoleTransport from 'logd-console-transport';
+import fixtures from './fixtures/fixtures'
 
 
 
@@ -11,4 +12,7 @@ logd.transport(new ConsoleTransport());
 
 
 
-export default Service;
+export {
+    fixtures,
+    Service as default
+};

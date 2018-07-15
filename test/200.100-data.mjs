@@ -5,14 +5,25 @@ import section from 'section-tests';
 import request from 'superagent';
 import assert from 'assert';
 import log from 'ee-log';
+import {ServiceManager} from 'rda-service';
 
 
 
-const host = 'http://l.dns.porn:8020';
+const host = 'http://l.dns.porn';
 
 
 
-section('INFECT Sample Storage for RDA', (section) => {
+section('Data', (section) => {
+    let sm;
+
+    section.setup(async() => {
+        sm = new ServiceManager({
+            args: '--dev --log-level=error+ --log-module=*'.split(' ')
+        });
+        
+        await sm.startServices('rda-service-registry');
+    });
+
 
     section.test('Import data', async() => {
         const service = new Service();
@@ -21,9 +32,10 @@ section('INFECT Sample Storage for RDA', (section) => {
 
         section.notice('create data version');
         const id = 'id-'+Math.round(Math.random()*10000000);
-        const response = await request.post(`${host}/infect-sample-storage.data-version`).ok(res => res.status === 201).send({
+        const response = await request.post(`${host}:${service.getPort()}/infect-sample-storage.data-version`).ok(res => res.status === 201).send({
             identifier: id,
             dataSet: id,
+            dataSetFields: ['bacteriumId', 'antibioticId', 'ageGroupId', 'regionId', 'sampleDate', 'resistance']
         });
         const data = response.body;
 
@@ -34,7 +46,7 @@ section('INFECT Sample Storage for RDA', (section) => {
 
 
         section.notice('import records');
-        await request.post(`${host}/infect-sample-storage.data`).ok(res => res.status === 201).send({
+        await request.post(`${host}:${service.getPort()}/infect-sample-storage.data`).ok(res => res.status === 201).send({
             dataVersionId: data.id,
             records: [{
                 bacteriumId: Math.round(Math.random()*10000000),
@@ -47,7 +59,18 @@ section('INFECT Sample Storage for RDA', (section) => {
             }],
         });
 
+
+
+        section.notice('import records');
+        
+
         await section.wait(200);
         await service.end();
+    });
+
+
+
+    section.destroy(async() => {
+        await sm.stopServices();
     });
 });

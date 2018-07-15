@@ -14,6 +14,7 @@ const log = logd.module('infect-rda-sample-storage');
 // controllers
 import DataController from './controller/Data';
 import DataVersionController from './controller/DataVersion';
+import DataSetInfoController from './controller/DataSetInfo';
 
 
 
@@ -55,9 +56,13 @@ export default class InfectSampleStorageService extends RDAService {
         // register controllers
         this.registerController(new DataController(options));
         this.registerController(new DataVersionController(options));
-
+        this.registerController(new DataSetInfoController(options));
 
         await super.load();
+
+
+        // tell the service registry where we are
+        await this.registerService();
     }
 
 

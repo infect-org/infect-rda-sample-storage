@@ -89,7 +89,7 @@ create table infect_sample_storage."data" (
     "sampleDate" timestamp without time zone not null,
     "resistance" int not null,
     "sampleId" varchar(50) not null,
-    constraint "serviceType_pk"
+    constraint "data_pk"
         primary key (id),
     constraint "dataVersion_fk_dataVersion"
         foreign key ("id_dataVersion")
@@ -102,6 +102,25 @@ create table infect_sample_storage."data" (
         on update cascade
         on delete restrict
 );
+
+
+
+
+create table infect_sample_storage."dataSetField" (
+    id serial not null,
+    "id_dataSet" int ,
+    "fieldName" varchar(200) not null,
+    constraint "dataSetField_pk"
+        primary key (id),
+    constraint "dataSetField_unique_name"
+        unique ("id_dataSet", "fieldName"),
+    constraint "dataSetField_fk_dataSet"
+        foreign key ("id_dataSet")
+        references "dataSet" ("id")
+        on update cascade
+        on delete restrict
+);
+
 
 
 

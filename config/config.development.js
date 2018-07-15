@@ -6,6 +6,7 @@ const envr = require('envr');
 
 module.exports = {
     port: 8020,
+    registryHost: 'http://l.dns.porn:9000',
     db: {
         type: 'postgres',
         database: 'infect',
