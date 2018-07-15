@@ -37,10 +37,6 @@ export default class InfectSampleStorageService extends RDAService {
     */
     async load() {
 
-        // get the configuration file
-        this.loadConfig(this.dirname());
-
-
         // load database
         this.related = new Related(this.config.db);
         this.related.use(new RelatedTimestamps());
@@ -75,17 +71,5 @@ export default class InfectSampleStorageService extends RDAService {
     async end() {
         await super.end();
         await this.related.end();
-    }
-
-
-
-
-
-
-    /**
-    * returns the current directory for this class
-    */
-    dirname() {
-        return path.join(path.dirname(new URL(import.meta.url).pathname), '../');
     }
 }
