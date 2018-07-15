@@ -32,7 +32,7 @@ section('Data', (section) => {
 
         section.notice('create data version');
         const id = 'id-'+Math.round(Math.random()*10000000);
-        const response = await request.post(`${host}:${service.getPort()}/infect-sample-storage.data-version`).ok(res => res.status === 201).send({
+        const response = await request.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`).ok(res => res.status === 201).send({
             identifier: id,
             dataSet: id,
             dataSetFields: ['bacteriumId', 'antibioticId', 'ageGroupId', 'regionId', 'sampleDate', 'resistance']
@@ -46,7 +46,7 @@ section('Data', (section) => {
 
 
         section.notice('import records');
-        await request.post(`${host}:${service.getPort()}/infect-sample-storage.data`).ok(res => res.status === 201).send({
+        await request.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data`).ok(res => res.status === 201).send({
             dataVersionId: data.id,
             records: [{
                 bacteriumId: Math.round(Math.random()*10000000),

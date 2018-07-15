@@ -33,7 +33,7 @@ section('Data Version', (section) => {
         const id = 'id-'+Math.round(Math.random()*10000000);
         
 
-        const response = await request.post(`${host}:${service.getPort()}/infect-sample-storage.data-version`).ok(res => res.status === 201).send({
+        const response = await request.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`).ok(res => res.status === 201).send({
             identifier: id,
             dataSet: 'test',
             dataSetFields: ['id']
@@ -58,7 +58,7 @@ section('Data Version', (section) => {
         const id = 'id-'+Math.round(Math.random()*10000000);
         
         section.notice('creating version');
-        const response = await request.post(`${host}:${service.getPort()}/infect-sample-storage.data-version`).ok(res => res.status === 201).send({
+        const response = await request.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`).ok(res => res.status === 201).send({
             identifier: id,
             dataSet: 'test',
             dataSetFields: ['id']
@@ -71,7 +71,7 @@ section('Data Version', (section) => {
 
 
         section.notice('updating version');
-        await request.patch(`${host}:${service.getPort()}/infect-sample-storage.data-version/${id}`).ok(res => res.status === 200).send({
+        await request.patch(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version/${id}`).ok(res => res.status === 200).send({
             status: 'active'
         });
 

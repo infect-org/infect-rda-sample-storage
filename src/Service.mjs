@@ -26,7 +26,7 @@ export default class InfectSampleStorageService extends RDAService {
 
 
     constructor() {
-        super('infect-sample-storage');
+        super('infect-rda-sample-storage');
     }
 
 

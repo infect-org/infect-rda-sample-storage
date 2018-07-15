@@ -54,7 +54,7 @@ section('Data Set Info', (section) => {
 
         section.notice('create data version');
         const id = 'id-'+Math.round(Math.random()*10000000);
-        const response = await superagent.post(`${host}:${service.getPort()}/infect-sample-storage.data-version`).ok(res => res.status === 201).send({
+        const response = await superagent.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`).ok(res => res.status === 201).send({
             identifier: id,
             dataSet: id,
             dataSetFields: ['bacteriumId', 'antibioticId', 'ageGroupId', 'regionId', 'sampleDate', 'resistance', 'sampleId']
@@ -66,7 +66,7 @@ section('Data Set Info', (section) => {
 
 
         section.notice('import records');
-        await superagent.post(`${host}:${service.getPort()}/infect-sample-storage.data`).ok(res => res.status === 201).send({
+        await superagent.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data`).ok(res => res.status === 201).send({
             dataVersionId: data.id,
             records: createRows(500),
         });
@@ -74,14 +74,14 @@ section('Data Set Info', (section) => {
 
 
         section.notice('updating version');
-        await superagent.patch(`${host}:${service.getPort()}/infect-sample-storage.data-version/${id}`).ok(res => res.status === 200).send({
+        await superagent.patch(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version/${id}`).ok(res => res.status === 200).send({
             status: 'active'
         });
 
 
 
         section.info('getting info');
-        const info = await superagent.get(`${host}:${service.getPort()}/infect-sample-storage.dataset-info/${id}`).ok(res => res.status === 200).send();
+        const info = await superagent.get(`${host}:${service.getPort()}/infect-rda-sample-storage.dataset-info/${id}`).ok(res => res.status === 200).send();
 
 
         assert.equal(info.body.recordCount, 500);
