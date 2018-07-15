@@ -20,25 +20,6 @@ create table infect_sample_storage."dataSet" (
 );
 
 
-create table infect_sample_storage."dataGroup" (
-    id serial not null,
-    "id_dataSet" int not null,
-    identifier varchar(100) not null,
-    created timestamp without time zone not null default now(),
-    updated timestamp without time zone not null default now(),
-    deleted timestamp without time zone,
-    constraint "dataGroup_pk"
-        primary key (id),
-    constraint "dataGroup_unique_identifier"
-        unique ("identifier"),
-    constraint "dataGroup_fk_dataSet"
-        foreign key ("id_dataSet")
-        references "dataSet" ("id")
-        on update cascade
-        on delete restrict
-);
-
-
 create table infect_sample_storage."dataVersionStatus" (
     id serial not null,
     identifier varchar(100) not null,
@@ -73,6 +54,22 @@ create table infect_sample_storage."dataVersion" (
     constraint "dataVersion_fk_dataSet"
         foreign key ("id_dataSet")
         references "dataSet" ("id")
+        on update cascade
+        on delete restrict
+);
+
+
+create table infect_sample_storage."dataGroup" (
+    id serial not null,
+    "id_dataVersion" int not null,
+    created timestamp without time zone not null default now(),
+    updated timestamp without time zone not null default now(),
+    deleted timestamp without time zone,
+    constraint "dataGroup_pk"
+        primary key (id),
+    constraint "dataGroup_fk_dataVersion"
+        foreign key ("id_dataVersion")
+        references "dataVersion" ("id")
         on update cascade
         on delete restrict
 );

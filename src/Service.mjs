@@ -6,6 +6,8 @@ import path from 'path';
 import logd from 'logd';
 import Related from 'related';
 import RelatedTimestamps from 'related-timestamps';
+import ReferenceCounter from 'related-reference-counter';
+
 
 const log = logd.module('infect-rda-sample-storage');
 
@@ -40,6 +42,7 @@ export default class InfectSampleStorageService extends RDAService {
         // load database
         this.related = new Related(this.config.db);
         this.related.use(new RelatedTimestamps());
+        this.related.use(new ReferenceCounter());
 
         await this.related.load();
         this.db = this.related[this.config.db.schema];

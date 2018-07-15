@@ -20,6 +20,10 @@ export default class DataController extends Controller {
         this.enableAction('list');
 
 
+        // the number of records that get assigned to a group
+        this.groupSize = 1000;
+
+
         this.requiredFields = new Map([
             ['bacteriumId', 'number'],
             ['antibioticId', 'number'],
@@ -88,25 +92,98 @@ export default class DataController extends Controller {
             }
 
 
+            // get data groups for adding records to
+            const groups = await this.getDataGroups({
+                dataVersionId: data.dataVersionId,
+                recordCount: data.records.length,
+            });
+
+
             const transaction = this.db.createTransaction();
             const dataVersion = await this.db.dataVersion({
                 id: data.dataVersionId
             }).findOne();
 
 
+            let currentGroup = groups.shift();
+
             // store data
             for (const record of data.records) {
                 const row = {
-                    dataVersion: dataVersion
+                    dataVersion: dataVersion,
+                    id_dataGroup: currentGroup.groupId
                 };
 
                 for (const property of this.requiredFields.keys()) row[property] = record[property];
                 
                 await new transaction.data(row).save();
+
+                // switch group if required
+                currentGroup.recordCount--;
+                if (currentGroup.recordCount <= 0) currentGroup = groups.shift();
             }
 
             // persist changes
             await transaction.commit();
         }
+    }
+
+
+
+
+
+    /**
+    * since we're grouping records in groups we need
+    * create data groups that can be assigned to the 
+    * records. currently groups have a fixed size of 
+    * not more than this.grougSize items. this method 
+    * gets a group that is not full yet or creates a 
+    * new one. it may also return multiple groups if 
+    * one will not be enough for the records currently
+    * added.
+    */
+    async getDataGroups({
+        dataVersionId,
+        recordCount,
+    }) {
+        const Related = this.db.getORM();
+        const groups = [];
+
+        // get the one dataset that has the least records
+        // for the given data group
+        const dataGroup = await this.db.dataGroup([
+            Related.select('recordCount').referenceCount('data.id')
+        ]).order('recordCount').getDataVersion({
+            id: dataVersionId
+        }).raw().findOne();
+
+
+        // check if we can use the existing data group
+        if (dataGroup) {
+            const leftSlots = this.grougSize - dataGroup.recordCount;
+
+            groups.push({
+                groupId: dataGroup.id,
+                recordCount: leftSlots,
+            });
+
+            recordCount -= leftSlots;
+        }
+
+
+        while(recordCount > 0) {
+            const group = await new this.db.dataGroup({
+                id_dataVersion: dataVersionId
+            }).save();
+
+            groups.push({
+                groupId: group.id,
+                recordCount: this.groupSize,
+            });
+
+            recordCount -= this.groupSize;
+        }
+
+        return groups;
     }
 }

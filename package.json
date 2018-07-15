@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node --experimental-modules ./node_modules/.bin/section ./test/*.mjs --dev --log-level=error+ --log-module=*"
+    "test": "node --experimental-modules --no-warnings ./node_modules/.bin/section ./test/*.mjs --dev --subenv-testing --log-level=error+ --log-module=*"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
     "logd-console-transport": "^1.0.0",
     "rda-service": "^2.5.1",
     "related": "^2.16.0",
+    "related-reference-counter": "^2.0.3",
     "related-timestamps": "^2.0.0"
   }
 }
