@@ -70,7 +70,7 @@ export default class DataController extends Controller {
     */
     async create(request, response) {
         const data = request.body;
-
+        
         if (!data) response.status(400).send(`Missing request body!`);
         else if (!type.object(data)) response.status(400).send(`Request body must be a json object!`);
         else if (!type.array(data.records)) response.status(400).send(`Missing records array on the request body!`);

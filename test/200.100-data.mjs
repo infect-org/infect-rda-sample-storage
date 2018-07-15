@@ -61,8 +61,11 @@ section('Data', (section) => {
 
 
 
-        section.notice('import records');
-        
+        section.notice('updating version');
+        await request.patch(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version/${id}`).ok(res => res.status === 200).send({
+            status: 'active'
+        });
+
 
         await section.wait(200);
         await service.end();

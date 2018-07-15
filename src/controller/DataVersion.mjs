@@ -78,11 +78,14 @@ export default class DataVersionController extends Controller {
         else if (!type.object(data)) response.status(400).send(`Request body must be a json object!`);
         else if (!type.string(data.status)) response.status(400).send(`Missing parameter 'status' in request body!`);
         else {
+            const filter = {};
+
+            // let the user filter by identifier and id
+            if (!/^[0-9]/.test(dataVersionIdentifier)) filter.identifier = dataVersionIdentifier;
+            else filter.id = dataVersionIdentifier;
 
             // load the data version to update
-            let dataVersion = await this.db.dataVersion('*', {
-                identifier: dataVersionIdentifier
-            }).findOne();
+            let dataVersion = await this.db.dataVersion('*', filter).findOne();
 
             if (dataVersion) {
 
@@ -94,7 +97,7 @@ export default class DataVersionController extends Controller {
                 if (dataVersionStatus) {
                     dataVersion.dataVersionStatus = dataVersionStatus;
                     return await dataVersion.save();
-                } else response.status(404).send(`The data version '${dataVersionIdentifier}' was not found!`);
+                } else response.status(404).send(`The data version status '${dataVersionIdentifier}' was not found!`);
             } else response.status(404).send(`The data version '${dataVersionIdentifier}' was not found!`);
         }
     }
