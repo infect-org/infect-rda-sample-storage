@@ -59,6 +59,17 @@ create table infect_sample_storage."dataVersion" (
 );
 
 
+create table infect_sample_storage."shard" (
+    id serial not null,
+    "identifier" varchar(50) not null,
+    constraint "shard_pk"
+        primary key (id),
+    constraint "shard_unique_identifier"
+        unique ("identifier")
+);
+
+
+
 create table infect_sample_storage."dataGroup" (
     id serial not null,
     "id_dataVersion" int not null,
@@ -70,6 +81,29 @@ create table infect_sample_storage."dataGroup" (
     constraint "dataGroup_fk_dataVersion"
         foreign key ("id_dataVersion")
         references "dataVersion" ("id")
+        on update cascade
+        on delete restrict
+);
+
+
+
+
+create table infect_sample_storage."dataGroup_shard" (
+    id serial not null,
+    "id_dataGroup" int not null,
+    "id_shard" int not null,
+    constraint "dataGroup_shard_pk"
+        primary key (id),
+    constraint "shard_unique_mapping"
+        unique ("id_dataGroup", "id_shard"),
+    constraint "dataGroup_shard_fk_dataGroup"
+        foreign key ("id_dataGroup")
+        references "dataGroup" ("id")
+        on update cascade
+        on delete restrict,
+    constraint "dataGroup_shard_fk_shard"
+        foreign key ("id_shard")
+        references "shard" ("id")
         on update cascade
         on delete restrict
 );
@@ -117,6 +151,7 @@ create table infect_sample_storage."dataSetField" (
         on update cascade
         on delete restrict
 );
+
 
 
 
