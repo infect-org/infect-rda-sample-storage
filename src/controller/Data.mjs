@@ -40,26 +40,53 @@ export default class DataController extends Controller {
 
 
     /**
-    * list service that are online of a certain type
+    * returns data fro a given filter
     */
     async list(request, response) {
-        const serviceType = request.query.serviceType;
+        const query = request.query;
 
 
-        if (!type.string(serviceType)) response.status(400).send(`Missing parameter 'serviceType' in the requests query!`);
-        else {
-            const thirtySecondsAgo = new Date();
-            thirtySecondsAgo.setSeconds(thirtySecondsAgo.getSeconds()-this.serviceTTL);
+        if (query.shard) {
+            // return the data for one given shard
+
+            if (!type.string(query.offset)) response.status(400).send(`Missing offset query parameter!`);
+            else if (!type.string(query.limit)) response.status(400).send(`Missing limit query parameter!`);
+            else {
+
+                // get the fields to return for the given data aversion
+                const dbFields = await this.db.dataSetField('*')
+                    .getDataSet()
+                    .getDataVersion()
+                    .getDataGroup()
+                    .getShard({
+                        identifier: query.shard
+                    }).raw().find();
+
+                // get an array of unique values
+                const fields = [...(new Set(dbFields.map(f => f.fieldName)))];
 
 
-            return await this.db.serviceInstance('*', {
-                updated: this.db.getORM().gt(thirtySecondsAgo)
-            }).getServiceType({
-                identifier: serviceType
-            }).find();
-        }  
+                // get the actual data
+                const data = await this.db.data(fields)
+                    .order('id')
+                    .offset(parseInt(query.offset, 10))
+                    .limit(parseInt(query.limit, 10))
+                    .getDataVersion()
+                    .getDataGroup().getShard({
+                        identifier: query.shard
+                    }).raw().find();
+
+
+                // convert date fields to timestamps they
+                // occupy 8 instead of 120 bytes of memory!
+                data.forEach((row) => {
+                    row.sampleDate = Math.round(row.sampleDate.getTime()/1000);
+                });
+
+                return data;
+            }
+        } else throw new Error('not implemented (missing filter)');
     }
-
 
 
 
