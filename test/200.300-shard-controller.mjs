@@ -28,15 +28,21 @@ section('Shard', (section) => {
 
 
     section.test('Create shards', async() => {
+        section.setTimeout(5000);
+        
         const service = new Service();
         await service.load();
+
+
 
 
         
         // add fixtures
         section.notice('create fixtures');
         const dataSet = new DataSet();
-        const dataSetId = await dataSet.create();
+        const dataSetId = await dataSet.create({
+            length: 2500
+        });
 
 
 
@@ -46,7 +52,8 @@ section('Shard', (section) => {
             shards: ['a', 'b', 'c', 'd']
         });
 
-        log(response);
+        assert(response.body);
+        assert.equal(response.body.groupCount, 3);
 
         await section.wait(200);
         await service.end();

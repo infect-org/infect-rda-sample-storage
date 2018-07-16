@@ -70,7 +70,9 @@ export default class ShardController extends Controller {
             }));
 
 
-            return groups;
+            return {
+                groupCount: groups.length
+            };
         }
     }
 
