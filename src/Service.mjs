@@ -18,6 +18,7 @@ import DataController from './controller/Data';
 import DataVersionController from './controller/DataVersion';
 import DataSetInfoController from './controller/DataSetInfo'
 import ShardController from './controller/Shard';
+import SourceCodeController from './controller/SourceCode';
 
 
 
@@ -58,6 +59,7 @@ export default class InfectSampleStorageService extends RDAService {
         this.registerController(new DataVersionController(options));
         this.registerController(new DataSetInfoController(options));
         this.registerController(new ShardController(options));
+        this.registerController(new SourceCodeController(options));
 
         await super.load();
 

@@ -159,3 +159,37 @@ create table infect_sample_storage."dataSetField" (
 insert into "dataVersionStatus" ("identifier") values ('deleted');
 insert into "dataVersionStatus" ("identifier") values ('active');
 insert into "dataVersionStatus" ("identifier") values ('building');
+
+
+
+
+
+create table infect_sample_storage."sourceCodeType" (
+    id serial not null,
+    "identifier" varchar(50) not null,
+    constraint "sourceCodeType_pk"
+        primary key (id),
+    constraint "sourceCodeType_unique_identifier"
+        unique ("identifier")
+);
+
+
+
+create table infect_sample_storage."sourceCode" (
+    id serial not null,
+    "id_sourceCodeType" int not null,
+    "identifier" varchar(50) not null,
+    "sourceCode" text not null,
+    constraint "sourceCode_pk"
+        primary key (id),
+    constraint "sourceCode_unique_identifier"
+        unique ("identifier"),
+    constraint "sourceCode_fk_sourceCodeType"
+        foreign key ("id_sourceCodeType")
+        references "sourceCodeType" ("id")
+        on update cascade
+        on delete restrict
+);
+
+insert into "sourceCodeType" ("identifier") values ('mapper');
+insert into "sourceCodeType" ("identifier") values ('reducer');
