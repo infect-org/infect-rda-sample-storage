@@ -48,6 +48,7 @@ section('Data Set Info', (section) => {
 
 
     section.test('Get Info', async() => {
+        section.setTimeout(5000);
         const service = new Service();
         await service.load();
 

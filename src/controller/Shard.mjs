@@ -42,6 +42,8 @@ export default class ShardController extends Controller {
             const shards = await Promise.all(data.shards.map(shardIdentifier => this.getShard(shardIdentifier)));
 
 
+            if (!shards.length) throw new Error(`Canont create clsuter with 0 shards!`);
+
 
             // load he data groups for the given data set
             const groups = await this.db.dataGroup('id').getDataVersion().fetchDataVersionStatus({

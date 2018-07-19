@@ -28,7 +28,7 @@ section('Shard', (section) => {
 
 
     section.test('Create shards', async() => {
-        section.setTimeout(5000);
+        section.setTimeout(10000);
         
         const service = new Service();
         await service.load();

@@ -183,7 +183,7 @@ create table infect_sample_storage."sourceCode" (
     constraint "sourceCode_pk"
         primary key (id),
     constraint "sourceCode_unique_identifier"
-        unique ("identifier"),
+        unique ("identifier", "id_sourceCodeType"),
     constraint "sourceCode_fk_sourceCodeType"
         foreign key ("id_sourceCodeType")
         references "sourceCodeType" ("id")

@@ -97,7 +97,7 @@ export default class DataController extends Controller {
 
 
     /**
-    * register a new service
+    * write data to the db
     */
     async create(request, response) {
         const data = request.body;
@@ -119,10 +119,23 @@ export default class DataController extends Controller {
             }
 
 
+
+            // load all records that have a sampleId we're trying 
+            // to import in order to prevent duplicate key errors
+            const existingRecords = await this.db.data('sampleId', {
+                sampleId: this.db.getORM().in(data.records.map(r => r.sampleId)),
+            }).getDataVersion().getDataSet().getDataVersion({
+                id: data.dataVersionId,
+            }).raw().find();
+
+            const existingMap = new Set(existingRecords.map(record => record.sampleId));
+
+
+
             // get data groups for adding records to
             const groups = await this.getDataGroups({
                 dataVersionId: data.dataVersionId,
-                recordCount: data.records.length,
+                recordCount: data.records.length - existingRecords.length,
             });
 
 
@@ -133,25 +146,38 @@ export default class DataController extends Controller {
 
 
             let currentGroup = groups.shift();
+            let importedRecordCount = 0;
+            let duplicateRecordCount = 0;
 
             // store data
             for (const record of data.records) {
-                const row = {
-                    dataVersion: dataVersion,
-                    id_dataGroup: currentGroup.groupId
-                };
+                if (!existingMap.has(record.sampleId)) {
+                    existingMap.add(record.sampleId);
 
-                for (const property of this.requiredFields.keys()) row[property] = record[property];
-                
-                await new transaction.data(row).save();
+                    const row = {
+                        dataVersion: dataVersion,
+                        id_dataGroup: currentGroup.groupId,
+                    };
 
-                // switch group if required
-                currentGroup.recordCount--;
-                if (currentGroup.recordCount <= 0) currentGroup = groups.shift();
+                    for (const property of this.requiredFields.keys()) row[property] = record[property];
+                    
+                    await new transaction.data(row).save();
+
+                    // switch group if required
+                    currentGroup.recordCount--;
+                    if (currentGroup.recordCount <= 0) currentGroup = groups.shift();
+
+                    importedRecordCount++;
+                } else duplicateRecordCount++;
             }
 
             // persist changes
             await transaction.commit();
+
+            return {
+                importedRecordCount,
+                duplicateRecordCount,
+            }
         }
     }
 
