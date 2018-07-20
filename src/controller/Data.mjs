@@ -66,15 +66,19 @@ export default class DataController extends Controller {
                 const fields = [...(new Set(dbFields.map(f => f.fieldName)))];
 
 
+                // get the viable data versions. do this in two steps,
+                // postgres has difficulties optimizing this if we're
+                // getting everything in one query
+                const dataGroups = await this.db.dataGroup().getShard({
+                    identifier: query.shard
+                }).raw().find();
+
+
                 // get the actual data
-                const data = await this.db.data(fields)
-                    .order('id')
-                    .offset(parseInt(query.offset, 10))
-                    .limit(parseInt(query.limit, 10))
-                    .getDataVersion()
-                    .getDataGroup().getShard({
-                        identifier: query.shard
-                    }).raw().find();
+                const data = await this.db.data(fields, {
+                    id_dataGroup: this.db.getORM().in(dataGroups.map(g => g.id))
+                }).order('id').offset(parseInt(query.offset, 10)).limit(parseInt(query.limit, 10)).raw().find();
+
 
 
                 // convert date fields to timestamps they
@@ -211,16 +215,19 @@ export default class DataController extends Controller {
         }).raw().findOne();
 
 
+
         // check if we can use the existing data group
         if (dataGroup) {
             const leftSlots = this.grougSize - dataGroup.recordCount;
 
-            groups.push({
-                groupId: dataGroup.id,
-                recordCount: leftSlots,
-            });
+            if (leftSlots > 0) {
+                groups.push({
+                    groupId: dataGroup.id,
+                    recordCount: leftSlots,
+                });
 
-            recordCount -= leftSlots;
+                recordCount -= leftSlots;
+            }
         }
 
 

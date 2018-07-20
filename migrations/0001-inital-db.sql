@@ -193,3 +193,11 @@ create table infect_sample_storage."sourceCode" (
 
 insert into "sourceCodeType" ("identifier") values ('mapper');
 insert into "sourceCodeType" ("identifier") values ('reducer');
+
+
+create index on infect_sample_storage.data("sampleId");
+create index on infect_sample_storage.data("id_dataVersion");
+create index on infect_sample_storage.data("id_dataGroup");
+create index on infect_sample_storage."dataGroup"("id_dataVersion");
+create index on infect_sample_storage."dataVersion"("id_dataVersionStatus");
+create index on infect_sample_storage."dataVersion"("id_dataSet");
