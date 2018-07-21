@@ -43,13 +43,16 @@ section('Infect Mapper', (section) => {
             antibioticId: 1,
             resistance: 1,
         }]});
+        
+
 
         assert(result);
-        assert.equal(result.length, 1);
-        assert.equal(result[0].bacteriumId, 1);
-        assert.equal(result[0].antibioticId, 1);
-        assert.equal(result[0].resistant, 0);
-        assert.equal(result[0].intermediate, 1);
+        assert(result.values);
+        assert.equal(result.values.length, 1);
+        assert.equal(result.values[0].bacteriumId, 1);
+        assert.equal(result.values[0].antibioticId, 1);
+        assert.equal(result.values[0].resistant, 0);
+        assert.equal(result.values[0].intermediate, 1);
     });
 
 
@@ -81,7 +84,7 @@ section('Infect Mapper', (section) => {
         // do some counting
         let sampleCount = 0;
 
-        result.forEach((value) => {
+        result.values.forEach((value) => {
             sampleCount += value.resistant;
             sampleCount += value.intermediate;
             sampleCount += value.susceptible;
@@ -89,11 +92,12 @@ section('Infect Mapper', (section) => {
 
 
         assert(result);
-        assert.equal(result.length, 2);
-        assert.equal(result[0].bacteriumId, 2);
-        assert.equal(result[0].antibioticId, 3);
-        assert.equal(result[0].resistant, 0);
-        assert.equal(result[0].intermediate, 1);
+        assert(result.values);
+        assert.equal(result.values.length, 2);
+        assert.equal(result.values[0].bacteriumId, 2);
+        assert.equal(result.values[0].antibioticId, 3);
+        assert.equal(result.values[0].resistant, 0);
+        assert.equal(result.values[0].intermediate, 1);
         assert.equal(sampleCount, 2);
     });
 
@@ -127,7 +131,7 @@ section('Infect Mapper', (section) => {
         // do some counting
         let sampleCount = 0;
 
-        result.forEach((value) => {
+        result.values.forEach((value) => {
             sampleCount += value.resistant;
             sampleCount += value.intermediate;
             sampleCount += value.susceptible;
@@ -135,11 +139,12 @@ section('Infect Mapper', (section) => {
 
 
         assert(result);
-        assert.equal(result.length, 2);
-        assert.equal(result[0].bacteriumId, 1);
-        assert.equal(result[0].antibioticId, 1);
-        assert.equal(result[0].resistant, 0);
-        assert.equal(result[0].intermediate, 1);
+        assert(result.values);
+        assert.equal(result.values.length, 2);
+        assert.equal(result.values[0].bacteriumId, 1);
+        assert.equal(result.values[0].antibioticId, 1);
+        assert.equal(result.values[0].resistant, 0);
+        assert.equal(result.values[0].intermediate, 1);
         assert.equal(sampleCount, 2);
     });
 });

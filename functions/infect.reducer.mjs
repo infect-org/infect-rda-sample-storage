@@ -8,66 +8,76 @@ class Reducer {
     * the filters that are sent from the frontend
     * application
     */
-    async compute(sampleSets, filters) {
-        const bacteriumMap = new Map();
+    async compute(sampleSets) {
+        const start = Date.now();
+        const mappingMap = new Map();
+        const data = {
+            counters: {
+                filteredSamples: 0,
+                totalSamples: 0,
+            },
+            timings: {
+                preparation: 0,
+                filtering: 0,
+            },
+            shards: [],
+        };
 
 
         // combine data
-        sampleSets.forEach((set) => {
-            set.forEach((item) => {
-                if (!bacteriumMap.has(item.bacteriumId)) bacteriumMap.set(item.bacteriumId, new Map());
-                const antibioticMap = bacteriumMap.get(item.bacteriumId);
-
-                if (!antibioticMap.has(item.antibioticId)) {
-                    antibioticMap.set(item.antibioticId, {
+        sampleSets.forEach(({shard, results}) => {
+            results.values.forEach((item) => {
+                const id = `${item.bacteriumId},${item.antibioticId}`;
+                if (!mappingMap.has(id)) {
+                    mappingMap.set(id, {
                         resistant: 0,
                         intermediate: 0,
                         susceptible: 0,
+                        antibioticId: item.antibioticId,
+                        bacteriumId: item.bacteriumId,
                     });
                 }
-                const mapping = antibioticMap.get(item.antibioticId);
+                const mapping = mappingMap.get(id);
 
                 mapping.resistant += item.resistant;
                 mapping.intermediate += item.intermediate;
                 mapping.susceptible += item.susceptible;
             });
+
+            // also store shard specific state
+            data.shards.push({
+                ...shard,
+                timings: results.timings,
+                counters: results.counters,
+            });
+
+            // stats
+            data.counters.filteredSamples += results.counters.filteredSamples;
+            data.counters.totalSamples += results.counters.totalSamples;
+            data.timings.preparation += results.timings.preparation;
+            data.timings.filtering += results.timings.filtering;
         });
-        
 
 
-        // flatten data
-        const values = [];
 
-        for (const [bacteriumId, antibioticMap] of bacteriumMap.entries()) {
-            for (const [antibioticId, resistance] of antibioticMap.entries()) {
-                values.push({
-                    bacteriumId,
-                    antibioticId,
-                    resistant: resistance.resistant,
-                    intermediate: resistance.intermediate,
-                    susceptible: resistance.susceptible,
-                    resistantPercent: Math.round(100 - resistance.susceptible / (resistance.intermediate + resistance.susceptible + resistance.resistant) * 100),
-                    ...this.getConfidenceInterval(resistance)
-                });
-            }
+
+
+        // compute ci
+        for (const mapping of mappingMap.values()) {
+            const ci = this.getConfidenceInterval(mapping);
+
+            mapping.resistantPercent = Math.round(100 - mapping.susceptible / (mapping.intermediate + mapping.susceptible + mapping.resistant) * 100),
+            mapping.confidenceInterval = {
+                upperBound: ci.confidenceIntervalUpperBound,
+                lowerBound: ci.confidenceIntervalLowerBound,
+            };
         }
 
-
-
-        // do some counting
-        let sampleCount = 0;
-
-        values.forEach((value) => {
-            sampleCount += value.resistant;
-            sampleCount += value.intermediate;
-            sampleCount += value.susceptible;
-        });
-
-
-        return {
-            values,
-            sampleCount,
-        };
+        // totals & results
+        data.values = Array.from(mappingMap.values());
+        data.timings.reduction = Date.now() - start;
+        data.counters.filteredPercent = Math.round(data.counters.filteredSamples / data.counters.totalSamples * 100, 2);
+        return data;
     }
 
 
@@ -96,7 +106,7 @@ class Reducer {
 
         return {
             confidenceIntervalLowerBound: lowerCI,
-            confidenceIntervalHigherBound: upperCI,
+            confidenceIntervalUpperBound: upperCI,
             sampleCount: sampleCount,
         };
     }

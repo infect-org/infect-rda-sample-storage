@@ -19,28 +19,30 @@ class Mapper {
 
 
         // prepare filters
+        const prapareStart = Date.now();
         const filters = this.prepareFilters(params);
+        const preparationDuration = Date.now()-prapareStart;
 
 
 
         // were' mapping the data to nested maps
         // so that we can count the resistance on them
-        const bacteriumMap = new Map();
-
+        const mappingMap = new Map();
+        const filterStart = Date.now();
         rows.forEach((sample) => {
             if (this.satisfiesFilter(sample, filters)) {
-                if (!bacteriumMap.has(sample.bacteriumId)) bacteriumMap.set(sample.bacteriumId, new Map());
-                const antibioticMap = bacteriumMap.get(sample.bacteriumId);
+                const id = `${sample.bacteriumId},${sample.antibioticId}`;
 
-                if (!antibioticMap.has(sample.antibioticId)) {
-                    antibioticMap.set(sample.antibioticId, {
+                if (!mappingMap.has(id)) {
+                    mappingMap.set(id,  {
                         resistant: 0,
                         intermediate: 0,
                         susceptible: 0,
+                        bacteriumId: sample.bacteriumId,
+                        antibioticId: sample.antibioticId,
                     });
                 }
-                const mapping = antibioticMap.get(sample.antibioticId);
-
+                const mapping = mappingMap.get(id);
                 if (sample.resistance === 2) mapping.resistant++;
                 else if (sample.resistance === 1) mapping.intermediate++;
                 else if (sample.resistance === 0) mapping.susceptible++;
@@ -48,24 +50,19 @@ class Mapper {
         });
 
 
-        // create an array from the data
-        const values = [];
-
-
-        for (const [bacteriumId, antibioticMap] of bacteriumMap.entries()) {
-            for (const [antibioticId, resistance] of antibioticMap.entries()) {
-                values.push({
-                    bacteriumId,
-                    antibioticId,
-                    resistant: resistance.resistant,
-                    intermediate: resistance.intermediate,
-                    susceptible: resistance.susceptible,
-                });
-            }
+        const filterDuration = Date.now()-filterStart;
+        return {
+            values: Array.from(mappingMap.values()),
+            counters: {
+                filteredSamples: mappingMap.size,
+                totalSamples: rows.length,
+                filteredPercentage: 100 - (mappingMap.size/rows.length*100),
+            },
+            timings: {
+                preparation: preparationDuration,
+                filtering: filterDuration,
+            },
         }
-
-
-        return values;
     }
 
 

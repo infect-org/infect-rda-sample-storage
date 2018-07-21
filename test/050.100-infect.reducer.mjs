@@ -38,26 +38,55 @@ section('Infect Reducer', (section) => {
     section.test('Use Reducer', async() => {
         const instance = new Constructor();
 
-        const result = await instance.compute([[{
-            bacteriumId: 1,
-            antibioticId: 2,
-            resistant: 100,
-            intermediate: 200,
-            susceptible: 300,
-        }], [{
-            bacteriumId: 15,
-            antibioticId: 250,
-            resistant: 45,
-            intermediate: 34,
-            susceptible: 23,
+        const result = await instance.compute([{
+            shard: [],
+            results: {
+                values:[{
+                    bacteriumId: 1,
+                    antibioticId: 2,
+                    resistant: 100,
+                    intermediate: 200,
+                    susceptible: 300,
+                }],
+                counters: {
+                    filteredSamples: 10,
+                    totalSamples: 100,
+                    filteredPercentage: 90,
+                },
+                timings: {
+                    preparation: 4,
+                    filtering: 32,
+                },
+            },
         }, {
-            bacteriumId: 1,
-            antibioticId: 2,
-            resistant: 10,
-            intermediate: 10,
-            susceptible: 10,
-        }]]);
+            shard: [],
+            results: {
+                values: [{
+                    bacteriumId: 15,
+                    antibioticId: 250,
+                    resistant: 45,
+                    intermediate: 34,
+                    susceptible: 23,
+                }, {
+                    bacteriumId: 1,
+                    antibioticId: 2,
+                    resistant: 10,
+                    intermediate: 10,
+                    susceptible: 10,
+                }],
+                counters: {
+                    filteredSamples: 50,
+                    totalSamples: 100,
+                    filteredPercentage: 50,
+                },
+                timings: {
+                    preparation: 2,
+                    filtering: 21,
+                },
+            }
+        }]);
 
+        log(result);
 
 
         assert(result);
