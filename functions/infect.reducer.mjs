@@ -18,7 +18,7 @@ class Reducer {
             },
             timings: {
                 preparation: 0,
-                filtering: 0,
+                filteringTotal: 0,
             },
             shards: [],
         };
@@ -33,7 +33,8 @@ class Reducer {
                         resistant: 0,
                         intermediate: 0,
                         susceptible: 0,
-                        antibioticId: item.antibioticId,
+                        sampleCount: 0,
+                        compoundId: item.antibioticId,
                         bacteriumId: item.bacteriumId,
                     });
                 }
@@ -42,6 +43,7 @@ class Reducer {
                 mapping.resistant += item.resistant;
                 mapping.intermediate += item.intermediate;
                 mapping.susceptible += item.susceptible;
+                mapping.sampleCount += item.sampleCount;
             });
 
             // also store shard specific state
@@ -55,7 +57,7 @@ class Reducer {
             data.counters.filteredSamples += results.counters.filteredSamples;
             data.counters.totalSamples += results.counters.totalSamples;
             data.timings.preparation += results.timings.preparation;
-            data.timings.filtering += results.timings.filtering;
+            data.timings.filteringTotal += results.timings.filtering;
         });
 
 
@@ -75,6 +77,7 @@ class Reducer {
 
         // totals & results
         data.values = Array.from(mappingMap.values());
+        data.timings.filteringPerShard = Math.round(data.timings.filteringTotal/data.shards.length);
         data.timings.reduction = Date.now() - start;
         data.counters.filteredPercent = Math.round(data.counters.filteredSamples / data.counters.totalSamples * 100, 2);
         return data;
@@ -96,7 +99,7 @@ class Reducer {
         const someVariable = (resistantCount + 2) / (sampleCount + 4);
 
         // standard error value
-        const stdandardError = Math.sqrt(someVariable * (1 - someVariable) / someVariable);
+        const stdandardError = Math.sqrt(someVariable * (1 - someVariable) / (sampleCount + 4));
 
         // lower confidence interval
         const lowerCI = Math.max(Math.round(((someVariable - 1.96 * stdandardError) * 100), 1), 0);

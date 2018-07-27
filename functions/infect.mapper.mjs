@@ -29,9 +29,11 @@ class Mapper {
         // so that we can count the resistance on them
         const mappingMap = new Map();
         const filterStart = Date.now();
+        let filteredSampleCount = 0;
         rows.forEach((sample) => {
             if (this.satisfiesFilter(sample, filters)) {
                 const id = `${sample.bacteriumId},${sample.antibioticId}`;
+                filteredSampleCount++;
 
                 if (!mappingMap.has(id)) {
                     mappingMap.set(id,  {
@@ -40,12 +42,16 @@ class Mapper {
                         susceptible: 0,
                         bacteriumId: sample.bacteriumId,
                         antibioticId: sample.antibioticId,
+                        sampleCount: 0,
                     });
                 }
                 const mapping = mappingMap.get(id);
+                
                 if (sample.resistance === 2) mapping.resistant++;
                 else if (sample.resistance === 1) mapping.intermediate++;
                 else if (sample.resistance === 0) mapping.susceptible++;
+
+                mapping.sampleCount++;
             }
         });
 
@@ -54,9 +60,9 @@ class Mapper {
         return {
             values: Array.from(mappingMap.values()),
             counters: {
-                filteredSamples: mappingMap.size,
+                filteredSamples: filteredSampleCount,
                 totalSamples: rows.length,
-                filteredPercentage: 100 - (mappingMap.size/rows.length*100),
+                filteredPercentage: 100 - (filteredSampleCount/rows.length*100),
             },
             timings: {
                 preparation: preparationDuration,
@@ -94,7 +100,7 @@ class Mapper {
     */
     satisfiesFilter(sample, filters) {
         return (!filters.hasAgeGroupFilter || filters.ageGroupIds.has(sample.ageGroupId)) && 
-            (!filters.hasRegionFilter || filters.hasRegionFilter.has(sample.regionId)) && 
+            (!filters.hasRegionFilter || filters.regionIds.has(sample.regionId)) && 
             (!filters.hasDateFilter || sample.sampleDate >= filters.dateFrom && sample.sampleDate <= filters.dateTo)
     }
 }

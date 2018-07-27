@@ -47,6 +47,7 @@ section('Infect Reducer', (section) => {
                     resistant: 100,
                     intermediate: 200,
                     susceptible: 300,
+                    sampleCount: 9,
                 }],
                 counters: {
                     filteredSamples: 10,
@@ -67,12 +68,14 @@ section('Infect Reducer', (section) => {
                     resistant: 45,
                     intermediate: 34,
                     susceptible: 23,
+                    sampleCount: 78,
                 }, {
                     bacteriumId: 1,
                     antibioticId: 2,
                     resistant: 10,
                     intermediate: 10,
                     susceptible: 10,
+                    sampleCount: 99,
                 }],
                 counters: {
                     filteredSamples: 50,
@@ -91,9 +94,9 @@ section('Infect Reducer', (section) => {
 
         assert(result);
         assert.equal(result.values.length, 2);
-        assert.equal(result.sampleCount, 732);
+        assert.equal(result.counters.totalSamples, 200);
         assert.equal(result.values[0].bacteriumId, 1);
-        assert.equal(result.values[0].antibioticId, 2);
+        assert.equal(result.values[0].compoundId, 2);
         assert.equal(result.values[0].resistant, 110);
         assert.equal(result.values[0].intermediate, 210);
     });
