@@ -1,7 +1,4 @@
-'use strict';
-
-
-import {Controller} from 'rda-service';
+import { Controller } from 'rda-service';
 import type from 'ee-types';
 import log from 'ee-log';
 
@@ -26,14 +23,14 @@ export default class SourceCodeController extends Controller {
     /**
     * add source code to the db
     */
-    async create(request, response) {
-         const data = request.body;
+    async create(request) {
+         const data = await request.getData();
 
-        if (!data) response.status(400).send(`Missing request body!`);
-        else if (!type.object(data)) response.status(400).send(`Request body must be a json object!`);
-        else if (!type.string(data.sourceCode)) response.status(400).send(`Missing parameter 'sourceCode' in request body!`);
-        else if (!type.string(data.identifier)) response.status(400).send(`Missing parameter 'identifier' in request body!`);
-        else if (!type.string(data.type)) response.status(400).send(`Missing parameter 'type' in request body!`);
+        if (!data) request.response().status(400).send(`Missing request body!`);
+        else if (!type.object(data)) request.response().status(400).send(`Request body must be a json object!`);
+        else if (!type.string(data.sourceCode)) request.response().status(400).send(`Missing parameter 'sourceCode' in request body!`);
+        else if (!type.string(data.identifier)) request.response().status(400).send(`Missing parameter 'identifier' in request body!`);
+        else if (!type.string(data.type)) request.response().status(400).send(`Missing parameter 'type' in request body!`);
         else {
 
             await new this.db.sourceCode({
@@ -54,7 +51,7 @@ export default class SourceCodeController extends Controller {
     /**
     * return source code for the compute service
     */
-    async list(request, response) {
+    async list() {
         const source = await this.db.sourceCode('*').getSourceCodeType('*').raw().find();
 
         return source.map(item => ({

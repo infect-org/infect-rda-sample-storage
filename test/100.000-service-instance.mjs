@@ -1,11 +1,8 @@
-'use strict';
-
 import Service from '../index.mjs';
 import section from 'section-tests';
-import request from 'superagent';
 import assert from 'assert';
 import log from 'ee-log';
-import {ServiceManager} from 'rda-service';
+import ServiceManager from '@infect/rda-service-manager';
 
 
 const host = 'http://l.dns.porn:8020';

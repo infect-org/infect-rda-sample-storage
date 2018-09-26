@@ -1,7 +1,4 @@
-'use strict';
-
-
-import {Controller} from 'rda-service';
+import { Controller } from 'rda-service';
 import type from 'ee-types';
 import log from 'ee-log';
 
@@ -28,13 +25,13 @@ export default class DataVersionController extends Controller {
     /**
     * register a new version
     */
-    async create(request, response) {
-        const data = request.body;
+    async create(request) {
+        const data = await request.getData();
 
-        if (!data) response.status(400).send(`Missing request body!`);
-        else if (!type.object(data)) response.status(400).send(`Request body must be a json object!`);
-        else if (!type.string(data.dataSet)) response.status(400).send(`Missing parameter 'dataSet' in request body!`);
-        else if (!type.array(data.dataSetFields)) response.status(400).send(`Missing parameter 'dataSetFields' in request body!`);
+        if (!data) request.response().status(400).send(`Missing request body!`);
+        else if (!type.object(data)) request.response().status(400).send(`Request body must be a json object!`);
+        else if (!type.string(data.dataSet)) request.response().status(400).send(`Missing parameter 'dataSet' in request body!`);
+        else if (!type.array(data.dataSetFields)) request.response().status(400).send(`Missing parameter 'dataSetFields' in request body!`);
         else {
 
             // make sure the data set exists
@@ -70,13 +67,13 @@ export default class DataVersionController extends Controller {
     /**
     *set status on data version
     */
-    async update(request, response) {
-        const data = request.body;
-        const dataVersionIdentifier = request.params.id;
+    async update(request) {
+        const data = await request.getData();
+        const dataVersionIdentifier = request.parameter('id');
 
-        if (!data) response.status(400).send(`Missing request body!`);
-        else if (!type.object(data)) response.status(400).send(`Request body must be a json object!`);
-        else if (!type.string(data.status)) response.status(400).send(`Missing parameter 'status' in request body!`);
+        if (!data) request.response().status(400).send(`Missing request body!`);
+        else if (!type.object(data)) request.response().status(400).send(`Request body must be a json object!`);
+        else if (!type.string(data.status)) request.response().status(400).send(`Missing parameter 'status' in request body!`);
         else {
             const filter = {};
 
@@ -97,8 +94,8 @@ export default class DataVersionController extends Controller {
                 if (dataVersionStatus) {
                     dataVersion.dataVersionStatus = dataVersionStatus;
                     return await dataVersion.save();
-                } else response.status(404).send(`The data version status '${dataVersionIdentifier}' was not found!`);
-            } else response.status(404).send(`The data version '${dataVersionIdentifier}' was not found!`);
+                } else request.response().status(404).send(`The data version status '${dataVersionIdentifier}' was not found!`);
+            } else request.response().status(404).send(`The data version '${dataVersionIdentifier}' was not found!`);
         }
     }
 }

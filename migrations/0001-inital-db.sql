@@ -120,6 +120,7 @@ create table infect_sample_storage."data" (
     "sampleDate" timestamp without time zone not null,
     "resistance" int not null,
     "sampleId" varchar(50) not null,
+    "hospitalStatusId" int not null,
     constraint "data_pk"
         primary key (id),
     constraint "dataVersion_fk_dataVersion"

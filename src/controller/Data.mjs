@@ -1,7 +1,4 @@
-'use strict';
-
-
-import {Controller} from 'rda-service';
+import { Controller } from 'rda-service';
 import type from 'ee-types';
 import log from 'ee-log';
 
@@ -32,6 +29,7 @@ export default class DataController extends Controller {
             ['sampleDate', 'string'],
             ['resistance', 'number'],
             ['sampleId', 'string'],
+            ['hospitalStatusId', 'number'],
         ]);
     }
 
@@ -42,15 +40,15 @@ export default class DataController extends Controller {
     /**
     * returns data fro a given filter
     */
-    async list(request, response) {
-        const query = request.query;
+    async list(request) {
+        const query = request.query();
 
 
         if (query.shard) {
             // return the data for one given shard
 
-            if (!type.string(query.offset)) response.status(400).send(`Missing offset query parameter!`);
-            else if (!type.string(query.limit)) response.status(400).send(`Missing limit query parameter!`);
+            if (!type.string(query.offset)) request.response().status(400).send(`Missing offset query parameter!`);
+            else if (!type.string(query.limit)) request.response().status(400).send(`Missing limit query parameter!`);
             else {
 
                 // get the fields to return for the given data aversion
@@ -103,20 +101,20 @@ export default class DataController extends Controller {
     /**
     * write data to the db
     */
-    async create(request, response) {
-        const data = request.body;
+    async create(request) {
+        const data = await request.getData();
         
-        if (!data) response.status(400).send(`Missing request body!`);
-        else if (!type.object(data)) response.status(400).send(`Request body must be a json object!`);
-        else if (!type.array(data.records)) response.status(400).send(`Missing records array on the request body!`);
-        else if (!type.number(data.dataVersionId)) response.status(400).send(`Missing the property 'dataVersionId' on the request body!`);
+        if (!data) request.response().status(400).send(`Missing request body!`);
+        else if (!type.object(data)) request.response().status(400).send(`Request body must be a json object!`);
+        else if (!type.array(data.records)) request.response().status(400).send(`Missing records array on the request body!`);
+        else if (!type.number(data.dataVersionId)) request.response().status(400).send(`Missing the property 'dataVersionId' on the request body!`);
         else {
             
             // validate input
             for (const record of data.records) {
                 for (const [property, typeName] of this.requiredFields.entries()) {
                     if (!type[typeName](record[property])) {
-                        response.status(400).send(`Missing or invalid property '${property}', expected '${typeName}', got '${type(record[property])}'`);
+                        request.response().status(400).send(`Missing or invalid property '${property}', expected '${typeName}', got '${type(record[property])}'`);
                         return;
                     }
                 }

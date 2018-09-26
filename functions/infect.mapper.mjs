@@ -16,6 +16,7 @@ class Mapper {
         // - regionId (int)
         // - sampleDate (timestamp)
         // - resistance (2 = resistant, 1 = intermediate, 0 = susceptible)
+        // - hospitalStatus (int)
 
 
         // prepare filters
@@ -82,12 +83,14 @@ class Mapper {
     prepareFilters(filters) {
         return {
             ageGroupIds: new Set(filters && filters.ageGroupIds),
-            regionIds: new Set(filters && filters.regionIds),
-            hasAgeGroupFilter: !!(filters && filters.ageGroupIds && filters.ageGroupIds.length),
-            hasRegionFilter: !!(filters && filters.regionIds && filters.regionIds.length),
-            hasDateFilter: !!(filters && filters.dateFrom && filters.dateTo),
             dateFrom: filters && filters.dateFrom,
             dateTo: filters && filters.dateTo,
+            hasAgeGroupFilter: !!(filters && filters.ageGroupIds && filters.ageGroupIds.length),
+            hasDateFilter: !!(filters && filters.dateFrom && filters.dateTo),
+            hasHospitalStatusFilter: !!(filters && filters.hospitalStatusIds && filters.hospitalStatusIds.length),
+            hasRegionFilter: !!(filters && filters.regionIds && filters.regionIds.length),
+            hospitalStatusIds: new Set(filters && filters.hospitalStatusIds),
+            regionIds: new Set(filters && filters.regionIds),
         }
     }
 
@@ -100,6 +103,7 @@ class Mapper {
     */
     satisfiesFilter(sample, filters) {
         return (!filters.hasAgeGroupFilter || filters.ageGroupIds.has(sample.ageGroupId)) && 
+            (!filters.hasHospitalStatusFilter || filters.hospitalStatusIds.has(sample.hospitalStatusId)) && 
             (!filters.hasRegionFilter || filters.regionIds.has(sample.regionId)) && 
             (!filters.hasDateFilter || sample.sampleDate >= filters.dateFrom && sample.sampleDate <= filters.dateTo)
     }

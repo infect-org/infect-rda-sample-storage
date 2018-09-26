@@ -1,11 +1,9 @@
-'use strict';
-
 import Service from '../index.mjs';
 import section from 'section-tests';
-import request from 'superagent';
+import HTTP2Client from '@distributed-systems/http2-client';
 import assert from 'assert';
 import log from 'ee-log';
-import {ServiceManager} from 'rda-service';
+import ServiceManager from '@infect/rda-service-manager';
 
 
 
@@ -27,18 +25,22 @@ section('Data Version', (section) => {
 
     section.test('Create a data version', async() => {
         const service = new Service();
+        const client = new HTTP2Client();
         await service.load();
 
 
         const id = 'id-'+Math.round(Math.random()*10000000);
         
 
-        const response = await request.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`).ok(res => res.status === 201).send({
-            identifier: id,
-            dataSet: 'test',
-            dataSetFields: ['id']
-        });
-        const data = response.body;
+        const response = await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`)
+            .expect(201)
+            .send({
+                identifier: id,
+                dataSet: 'test',
+                dataSetFields: ['id']
+            });
+
+        const data = await response.getData();
 
         assert(data, 'missing response data');
         assert.equal(data.identifier, id);
@@ -46,24 +48,29 @@ section('Data Version', (section) => {
 
         await section.wait(200);
         await service.end();
+        await client.end();
     });
     
 
 
     section.test('Activate a new version', async() => {
         const service = new Service();
+        const client = new HTTP2Client();
         await service.load();
 
 
         const id = 'id-'+Math.round(Math.random()*10000000);
         
         section.notice('creating version');
-        const response = await request.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`).ok(res => res.status === 201).send({
-            identifier: id,
-            dataSet: 'test',
-            dataSetFields: ['id']
-        });
-        const data = response.body;
+        const response = await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`)
+            .expect(201)
+            .send({
+                identifier: id,
+                dataSet: 'test',
+                dataSetFields: ['id']
+            });
+
+        const data = await response.getData();
 
         assert(data, 'missing response data');
         assert.equal(data.identifier, id);
@@ -71,13 +78,16 @@ section('Data Version', (section) => {
 
 
         section.notice('updating version');
-        await request.patch(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version/${id}`).ok(res => res.status === 200).send({
-            status: 'active'
-        });
+        await client.patch(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version/${id}`)
+            .expect(200)
+            .send({
+                status: 'active'
+            });
 
 
         await section.wait(200);
         await service.end();
+        await client.end();
     });
 
 

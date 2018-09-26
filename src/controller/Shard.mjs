@@ -1,10 +1,7 @@
-'use strict';
-
-
-import {Controller} from 'rda-service';
+import { Controller } from 'rda-service';
 import type from 'ee-types';
 import log from 'ee-log';
-import {createHash} from 'crypto';
+import { createHash } from 'crypto';
 
 
 
@@ -28,13 +25,13 @@ export default class ShardController extends Controller {
     /**
     * create data shards for the data groups of a data set
     */
-    async create(request, response) {
-        const data = request.body;
+    async create(request) {
+        const data = await request.getData();
 
-        if (!data) response.status(400).send(`Missing request body!`);
-        else if (!type.object(data)) response.status(400).send(`Request body must be a json object!`);
-        else if (!type.string(data.dataSet)) response.status(400).send(`Missing parameter 'dataSet' in request body!`);
-        else if (!type.array(data.shards)) response.status(400).send(`Missing parameter 'shards' in request body!`);
+        if (!data) request.response().status(400).send(`Missing request body!`);
+        else if (!type.object(data)) request.response().status(400).send(`Request body must be a json object!`);
+        else if (!type.string(data.dataSet)) request.response().status(400).send(`Missing parameter 'dataSet' in request body!`);
+        else if (!type.array(data.shards)) request.response().status(400).send(`Missing parameter 'shards' in request body!`);
         else {
 
 

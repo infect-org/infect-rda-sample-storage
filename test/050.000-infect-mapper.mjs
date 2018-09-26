@@ -1,4 +1,3 @@
-
 import vm from 'vm';
 import fs from 'fs';
 import util from 'util';
@@ -20,7 +19,7 @@ section('Infect Mapper', (section) => {
         const sourceCode = await readFile(filePath);
 
         const context = vm.createContext({console});
-        const module = new vm.Module(sourceCode.toString(), {context});
+        const module = new vm.SourceTextModule(sourceCode.toString(), {context});
 
         // linking is not supported for the moment
         await module.link(async () => {});

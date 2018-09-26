@@ -1,6 +1,3 @@
-'use strict';
-
-
 import {Controller} from 'rda-service';
 import type from 'ee-types';
 import log from 'ee-log';
@@ -28,8 +25,8 @@ export default class DataSetInfoController extends Controller {
     * return information about the requirements of the data set
     * such as memory requirements and record couunt
     */
-    async listOne(request, response) {
-        const dataSetIdentifier = request.params.id;
+    async listOne(request) {
+        const dataSetIdentifier = request.parameter('id');
 
         
         // count the records to be loaded
