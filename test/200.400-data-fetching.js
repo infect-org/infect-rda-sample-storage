@@ -1,10 +1,10 @@
-import Service from '../index.mjs';
+import Service from '../index.js';
 import section from 'section-tests';
 import HTTP2Client from '@distributed-systems/http2-client';
 import assert from 'assert';
 import log from 'ee-log';
 import ServiceManager from '@infect/rda-service-manager';
-import { DataSet } from '@infect/rda-fixtures';
+import {DataSet} from '@infect/rda-fixtures';
 
 
 
@@ -12,12 +12,12 @@ const host = 'http://l.dns.porn';
 
 
 
-section('Shard', (section) => {
+section('Data Fetching', (section) => {
     let sm;
 
     section.setup(async() => {
         sm = new ServiceManager({
-            args: '--dev --log-level=error+ --log-module=*'.split(' ')
+            args: '--dev.testing --log-level=error+ --log-module=*'.split(' ')
         });
         
         await sm.startServices('rda-service-registry');
@@ -25,12 +25,13 @@ section('Shard', (section) => {
     });
 
 
-    section.test('Create shards', async() => {
-        section.setTimeout(10000);
+    section.test('Get Records', async() => {
+        section.setTimeout(5000);
         
         const service = new Service();
         const client = new HTTP2Client();
         await service.load();
+
 
         
         // add fixtures
@@ -43,17 +44,29 @@ section('Shard', (section) => {
 
 
         section.notice('create shards');
-        const response = await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.shard`)
+        await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.shard`)
             .expect(201)
             .send({
                 dataSet: dataSetId,
-                shards: ['a', 'b', 'c', 'd']
+                shards: ['a', 'b', 'c', 'd'],
             });
+
+
+
+        section.notice('load page');
+        const response = await client.get(`${host}:${service.getPort()}/infect-rda-sample-storage.data`)
+            .expect(200)
+            .query({
+                shard: 'a',
+                offset: 0,
+                limit: 100,
+            })
+            .send();
 
         const data = await response.getData();
 
         assert(data);
-        assert.equal(data.groupCount, 3);
+        assert.equal(data.length, 100);
 
         await section.wait(200);
         await service.end();

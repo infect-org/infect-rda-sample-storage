@@ -15,7 +15,7 @@ section('Infect Reducer', (section) => {
 
 
     section.test('Build Reducer', async() => {
-        const filePath = path.resolve('./functions/infect.reducer.mjs'); 
+        const filePath = path.resolve('./functions/infect.reducer.js'); 
         const sourceCode = await readFile(filePath);
 
         const context = vm.createContext({});

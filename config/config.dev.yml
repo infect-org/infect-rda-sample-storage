@@ -1,0 +1,13 @@
+database:
+    type: postgres
+    database: infect
+    schema: infect_sample_storage
+    hosts:
+        - host: 10.80.100.1
+          username: postgres
+          password: ${SAMPLE_STORAGE_DB_PASSWORD}
+          port: 5432
+          pools:
+            - read
+            - write
+          maxConnections: 20

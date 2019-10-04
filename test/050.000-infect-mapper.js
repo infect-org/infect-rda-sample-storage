@@ -15,7 +15,7 @@ section('Infect Mapper', (section) => {
 
 
     section.test('Build Mapper', async() => {
-        const filePath = path.resolve('./functions/infect.mapper.mjs'); 
+        const filePath = path.resolve('./functions/infect.mapper.js'); 
         const sourceCode = await readFile(filePath);
 
         const context = vm.createContext({console});

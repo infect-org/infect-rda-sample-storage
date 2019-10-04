@@ -1,4 +1,4 @@
-import RDAService from 'rda-service';
+import RDAService from '@infect/rda-service';
 import path from 'path';
 import logd from 'logd';
 import Related from 'related';
@@ -11,14 +11,15 @@ const log = logd.module('infect-rda-sample-storage');
 
 
 // controllers
-import DataController from './controller/Data';
-import DataVersionController from './controller/DataVersion';
-import DataSetInfoController from './controller/DataSetInfo'
-import ShardController from './controller/Shard';
-import SourceCodeController from './controller/SourceCode';
+import DataController from './controller/Data.js';
+import DataVersionController from './controller/DataVersion.js';
+import DataSetInfoController from './controller/DataSetInfo.js'
+import ShardController from './controller/Shard.js';
+import SourceCodeController from './controller/SourceCode.js';
 
 
 
+const appRoot = path.join(path.dirname(new URL(import.meta.url).pathname), '../');
 
 
 
@@ -26,8 +27,12 @@ import SourceCodeController from './controller/SourceCode';
 export default class InfectSampleStorageService extends RDAService {
 
 
+
     constructor() {
-        super('infect-rda-sample-storage');
+        super({
+            name: 'infect-rda-sample-storage',
+            appRoot,
+        });
     }
 
 
@@ -37,14 +42,15 @@ export default class InfectSampleStorageService extends RDAService {
     * prepare the service
     */
     async load() {
+        await this.initialize();
 
         // load database
-        this.related = new Related(this.config.db);
+        this.related = new Related(this.config.get('database'));
         this.related.use(new RelatedTimestamps());
         this.related.use(new ReferenceCounter());
 
         await this.related.load();
-        this.db = this.related[this.config.db.schema];
+        this.db = this.related[this.config.get('database').schema];
 
 
         const options = {

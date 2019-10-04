@@ -37,6 +37,7 @@ create table infect_sample_storage."dataVersion" (
     version serial not null,
     description text null,
     identifier varchar(100) null,
+    "sourceHash" varchar(64),
     created timestamp without time zone not null default now(),
     updated timestamp without time zone not null default now(),
     deleted timestamp without time zone,

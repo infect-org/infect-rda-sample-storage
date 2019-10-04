@@ -23,5 +23,4 @@ config.js
 
 coverage
 
-secrets.development.js
-secrets.testing.js
+secrets.*

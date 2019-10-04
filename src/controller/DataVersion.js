@@ -1,4 +1,4 @@
-import { Controller } from 'rda-service';
+import { Controller } from '@infect/rda-service';
 import type from 'ee-types';
 import log from 'ee-log';
 
@@ -15,8 +15,27 @@ export default class DataVersionController extends Controller {
 
         this.enableAction('update');
         this.enableAction('create');
+        this.enableAction('listOne');
     }
 
+
+
+
+
+
+    /**
+     * returns on edata evrsion
+     *
+     * @return     {Promise}  data version
+     */
+    async listOne(request) {
+        const version = await this.db.dataVersion('*', {
+            sourceHash: request.getParameter('id'),
+        }).findOne();
+
+        if (version) request.response().status(200).send();
+        else request.response().status(404).send();
+    }
 
 
 
@@ -54,7 +73,8 @@ export default class DataVersionController extends Controller {
                 dataVersionStatus: this.db.dataVersionStatus('*', {
                     identifier: 'building'
                 }),
-                dataSet: dataSet
+                dataSet: dataSet,
+                sourceHash: data.sourceHash,
             }).save();
         }
     }
