@@ -11,3 +11,7 @@ database:
             - read
             - write
           maxConnections: 20
+
+
+service-registry:
+    host: http://l.dns.porn:9000
