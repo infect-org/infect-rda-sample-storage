@@ -1,13 +1,17 @@
 database:
     type: postgres
-    database: infect
+    database: rda
     schema: infect_sample_storage
     hosts:
-        - host: ${SAMPLE_STORAGE_DB_HOST}
-          username: root
-          password: ${SAMPLE_STORAGE_DB_PASSWORD}
+        - host: ${SAMPLE_STORAGE_SERVICE_DB_HOST}
+          username: ${SAMPLE_STORAGE_SERVICE_DB_USER}
+          password: ${SAMPLE_STORAGE_SERVICE_DB_PASSWORD}
           port: 5432
           pools:
             - read
             - write
           maxConnections: 20
+
+
+service-registry:
+    host: ${SERVICE_REGISTRY_HOST}
