@@ -3,15 +3,11 @@
 class Mapper {
 
     /**
-     * the compute method is called by the vm and gets passed an array of samples and the filters
-     * that are sent from the frontend application. the resulting data must reflect all variations 
-     * of bacteria and other properties do that the frontend application is aware which of them to
-     * display for which data set
-     *
-     * @param      {Object}   arg1         The argument 1
-     * @param      {array}    arg1.rows    array containing the records
-     * @param      {object}   arg1.params  filter parameters
-     */
+    * the compute method is called by the vm
+    * and gets passed an array of samples and
+    * the filters that are sent from the frontend
+    * application
+    */
     async compute({rows, params}) {
         // samples have the following properties:
         // - bacteriumId (int)
@@ -30,33 +26,35 @@ class Mapper {
 
 
 
+        // were' mapping the data to nested maps
+        // so that we can count the resistance on them
         const mappingMap = new Map();
         const filterStart = Date.now();
         let filteredSampleCount = 0;
-
-        const bacteriumIds = new Set();
-        const compoundIds = new Set();
-        const regionIds = new Set();
-        const ageGroupIds = new Set();
-
-
         rows.forEach((sample) => {
             if (this.satisfiesFilter(sample, filters)) {
+                const id = `${sample.bacteriumId},${sample.antibioticId}`;
                 filteredSampleCount++;
 
-                bacteriumIds.add(sample.bacteriumId);
-                compoundIds.add(sample.antibioticId);
-                regionIds.add(sample.regionId);
-                ageGroupIds.add(sample.ageGroupId);
+                if (!mappingMap.has(id)) {
+                    mappingMap.set(id,  {
+                        bacteriumId: sample.bacteriumId,
+                        antibioticId: sample.antibioticId,
+                        regionId: sample.regionId,
+                        ageGroupId: sample.ageGroupId,
+                        sampleCount: 0,
+                    });
+                }
+                const mapping = mappingMap.get(id);
+
+                mapping.sampleCount++;
             }
         });
 
 
+        const filterDuration = Date.now()-filterStart;
         return {
-            bacteriumIds: Array.from(bacteriumIds.values()),
-            compoundIds: Array.from(compoundIds.values()),
-            regionIds: Array.from(regionIds.values()),
-            ageGroupIds: Array.from(ageGroupIds.values()),
+            values: Array.from(mappingMap.values()),
             counters: {
                 filteredSamples: filteredSampleCount,
                 totalSamples: rows.length,
@@ -64,7 +62,7 @@ class Mapper {
             },
             timings: {
                 preparation: preparationDuration,
-                filtering: Date.now()-filterStart,
+                filtering: filterDuration,
             },
         }
     }
@@ -108,6 +106,8 @@ class Mapper {
 
 
 
-// the last statement will be returned to the vm executing the code. it must be a class constructor
-// there can be no single statement after this, not event a new line
+// the last statement will be returned to the vm
+// executing the code. it must be a class constructor
+// there can be no single statement after this, not 
+// event a new line
 Mapper

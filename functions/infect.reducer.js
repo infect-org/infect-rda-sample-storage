@@ -80,6 +80,11 @@ class Reducer {
         data.timings.filteringPerShard = Math.round(data.timings.filteringTotal/data.shards.length);
         data.timings.reduction = Date.now() - start;
         data.counters.filteredPercent = Math.round(data.counters.filteredSamples / data.counters.totalSamples * 100, 2);
+
+
+        // filter samples, that have less than 6 samples
+        data.values = data.values.filter(value => value.sampleCount > 5);
+
         return data;
     }
 

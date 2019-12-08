@@ -24,18 +24,22 @@ class Reducer {
         };
 
 
-        const bacteriumIds = new Set();
-        const compoundIds = new Set();
-        const regionIds = new Set();
-        const ageGroupIds = new Set();
-
-
         // combine data
         sampleSets.forEach(({shard, results}) => {
-            results.bacteriumIds.forEach(id => bacteriumIds.add(id));
-            results.compoundIds.forEach(id => compoundIds.add(id));
-            results.regionIds.forEach(id => regionIds.add(id));
-            results.ageGroupIds.forEach(id => ageGroupIds.add(id));
+            results.values.forEach((item) => {
+                const id = `${item.bacteriumId},${item.antibioticId}`;
+                if (!mappingMap.has(id)) {
+                    mappingMap.set(id, {
+                        sampleCount: 0,
+                        compoundId: item.antibioticId,
+                        bacteriumId: item.bacteriumId,
+                        regionId: item.regionId,
+                        ageGroupId: item.ageGroupId,
+                    });
+                }
+                const mapping = mappingMap.get(id);
+                mapping.sampleCount += item.sampleCount;
+            });
 
             // also store shard specific state
             data.shards.push({
@@ -52,6 +56,31 @@ class Reducer {
         });
 
 
+        // totals & results
+        let values = Array.from(mappingMap.values());
+        data.timings.filteringPerShard = Math.round(data.timings.filteringTotal/data.shards.length);
+        data.counters.filteredPercent = Math.round(data.counters.filteredSamples / data.counters.totalSamples * 100, 2);
+
+
+        // filter samples, that have less than 6 samples
+        values = values.filter(value => value.sampleCount > 5);
+
+
+        const bacteriumIds = new Set();
+        const compoundIds = new Set();
+        const regionIds = new Set();
+        const ageGroupIds = new Set();
+
+
+        // combine data
+        values.forEach((value) => {
+            bacteriumIds.add(value.bacteriumId);
+            compoundIds.add(value.antibioticId);
+            regionIds.add(value.regionId);
+            ageGroupIds.add(value.ageGroupId);
+        });
+
+
         data.bacteriumIds = Array.from(bacteriumIds.values());
         data.compoundIds = Array.from(compoundIds.values());
         data.regionIds = Array.from(regionIds.values());
@@ -59,10 +88,8 @@ class Reducer {
         data.animalIds = [];
 
 
-        // totals & results
-        data.timings.filteringPerShard = Math.round(data.timings.filteringTotal/data.shards.length);
         data.timings.reduction = Date.now() - start;
-        data.counters.filteredPercent = Math.round(data.counters.filteredSamples / data.counters.totalSamples * 100, 2);
+
         return data;
     }
 }
