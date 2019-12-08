@@ -75,7 +75,7 @@ class Reducer {
         // combine data
         values.forEach((value) => {
             bacteriumIds.add(value.bacteriumId);
-            compoundIds.add(value.antibioticId);
+            compoundIds.add(value.compoundId);
             regionIds.add(value.regionId);
             ageGroupIds.add(value.ageGroupId);
         });
