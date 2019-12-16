@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node --experimental-modules --no-warnings --experimental-vm-modules ./node_modules/.bin/section ./test/*.js --dev.testing --log-level=error+ --log-module=*"
+    "test": "node --experimental-modules --no-warnings --experimental-vm-modules ./node_modules/.bin/section ./test/*.js --dev.testing --log-level=error+ --log-module=*",
+    "perf": "node --experimental-modules ./rendezvouz-rebalance-test.js"
   },
   "repository": {
     "type": "git",

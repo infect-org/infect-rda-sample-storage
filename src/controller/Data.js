@@ -17,7 +17,7 @@ export default class DataController extends Controller {
         this.enableAction('list');
 
 
-        // the number of records that get assigned to a group
+        // the number of records that gets assigned to a group. 
         this.groupSize = 1000;
 
 
