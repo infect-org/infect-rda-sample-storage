@@ -10,12 +10,12 @@ const readFile = util.promisify(fs.readFile);
 
 
 
-section('Infect Mapper', (section) => {
+section('Infect Configuration Mapper', (section) => {
     let Constructor;
 
 
     section.test('Build Mapper', async() => {
-        const filePath = path.resolve('./functions/infect.mapper.js'); 
+        const filePath = path.resolve('./functions/infect-configuration.mapper.js'); 
         const sourceCode = await readFile(filePath);
 
         const context = vm.createContext({console});
@@ -38,18 +38,18 @@ section('Infect Mapper', (section) => {
         const result = await instance.compute({rows: [{
             bacteriumId: 1,
             antibioticId: 1,
-            resistance: 1,
+            ageGroupId: 1,
+            regionId: 1,
         }]});
         
-
 
         assert(result);
         assert(result.values);
         assert.equal(result.values.length, 1);
         assert.equal(result.values[0].bacteriumId, 1);
         assert.equal(result.values[0].antibioticId, 1);
-        assert.equal(result.values[0].resistant, 0);
-        assert.equal(result.values[0].intermediate, 1);
+        assert.equal(result.values[0].ageGroupId, 1);
+        assert.equal(result.values[0].regionId, 1);
     });
 
 
@@ -60,32 +60,21 @@ section('Infect Mapper', (section) => {
         const result = await instance.compute({rows: [{
             bacteriumId: 1,
             antibioticId: 1,
-            resistance: 1,
             ageGroupId: 89,
+            regionId: 1,
         }, {
             bacteriumId: 2,
             antibioticId: 3,
-            resistance: 1,
             ageGroupId: 1,
+            regionId: 3,
         }, {
             bacteriumId: 5,
             antibioticId: 6,
-            resistance: 2,
             ageGroupId: 1,
+            regionId: 2,
         }], params: {
             ageGroupIds: [1]
         }});
-
-
-
-        // do some counting
-        let sampleCount = 0;
-
-        result.values.forEach((value) => {
-            sampleCount += value.resistant;
-            sampleCount += value.intermediate;
-            sampleCount += value.susceptible;
-        });
 
 
         assert(result);
@@ -93,9 +82,8 @@ section('Infect Mapper', (section) => {
         assert.equal(result.values.length, 2);
         assert.equal(result.values[0].bacteriumId, 2);
         assert.equal(result.values[0].antibioticId, 3);
-        assert.equal(result.values[0].resistant, 0);
-        assert.equal(result.values[0].intermediate, 1);
-        assert.equal(sampleCount, 2);
+        assert.equal(result.values[0].ageGroupId, 1);
+        assert.equal(result.values[0].regionId, 3);
     });
 
 
@@ -106,17 +94,20 @@ section('Infect Mapper', (section) => {
         const result = await instance.compute({rows: [{
             bacteriumId: 1,
             antibioticId: 1,
-            resistance: 1,
+            ageGroupId: 1,
+            regionId: 2,
             sampleDate: 1000,
         }, {
             bacteriumId: 2,
             antibioticId: 3,
-            resistance: 1,
+            ageGroupId: 2,
+            regionId: 3,
             sampleDate: 500,
         }, {
             bacteriumId: 5,
             antibioticId: 6,
-            resistance: 2,
+            ageGroupId: 4,
+            regionId: 5,
             sampleDate: 1000,
         }], params: {
             dateFrom: 800,
@@ -124,25 +115,13 @@ section('Infect Mapper', (section) => {
         }});
 
 
-
-        // do some counting
-        let sampleCount = 0;
-
-        result.values.forEach((value) => {
-            sampleCount += value.resistant;
-            sampleCount += value.intermediate;
-            sampleCount += value.susceptible;
-        });
-
-
         assert(result);
         assert(result.values);
         assert.equal(result.values.length, 2);
         assert.equal(result.values[0].bacteriumId, 1);
         assert.equal(result.values[0].antibioticId, 1);
-        assert.equal(result.values[0].resistant, 0);
-        assert.equal(result.values[0].intermediate, 1);
-        assert.equal(sampleCount, 2);
+        assert.equal(result.values[0].ageGroupId, 1);
+        assert.equal(result.values[0].regionId, 2);
     });
 });
 

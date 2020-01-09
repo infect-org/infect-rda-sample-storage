@@ -10,12 +10,12 @@ const readFile = util.promisify(fs.readFile);
 
 
 
-section('Infect Reducer', (section) => {
+section('Infect Configuration Reducer', (section) => {
     let Constructor;
 
 
     section.test('Build Reducer', async() => {
-        const filePath = path.resolve('./functions/infect.reducer.js'); 
+        const filePath = path.resolve('./functions/infect-configuration.reducer.js'); 
         const sourceCode = await readFile(filePath);
 
         const context = vm.createContext({});
@@ -43,6 +43,9 @@ section('Infect Reducer', (section) => {
                     resistant: 100,
                     intermediate: 200,
                     susceptible: 300,
+                    regionId: 1,
+                    ageGroupId: 2,
+                    animalId: 0,
                     sampleCount: 9,
                 }],
                 counters: {
@@ -65,6 +68,9 @@ section('Infect Reducer', (section) => {
                     intermediate: 34,
                     susceptible: 23,
                     sampleCount: 78,
+                    regionId: 1,
+                    ageGroupId: 2,
+                    animalId: 0,
                 }, {
                     bacteriumId: 1,
                     antibioticId: 2,
@@ -72,6 +78,9 @@ section('Infect Reducer', (section) => {
                     intermediate: 10,
                     susceptible: 10,
                     sampleCount: 99,
+                    regionId: 1,
+                    ageGroupId: 2,
+                    animalId: 0,
                 }],
                 counters: {
                     filteredSamples: 50,
@@ -85,14 +94,12 @@ section('Infect Reducer', (section) => {
             }
         }]);
 
-
         assert(result);
-        assert.equal(result.values.length, 2);
-        assert.equal(result.counters.totalSamples, 200);
-        assert.equal(result.values[0].bacteriumId, 1);
-        assert.equal(result.values[0].compoundId, 2);
-        assert.equal(result.values[0].resistant, 110);
-        assert.equal(result.values[0].intermediate, 210);
+        assert.equal(result.bacteriumIds.length, 2);
+        assert.equal(result.compoundIds.length, 2);
+        assert.equal(result.regionIds.length, 1);
+        assert.equal(result.ageGroupIds.length, 1);
+        assert.equal(result.animalIds.length, 0);
     });
 });
 

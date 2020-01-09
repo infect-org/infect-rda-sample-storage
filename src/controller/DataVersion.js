@@ -50,7 +50,6 @@ export default class DataVersionController extends Controller {
         if (!data) request.response().status(400).send(`Missing request body!`);
         else if (!type.object(data)) request.response().status(400).send(`Request body must be a json object!`);
         else if (!type.string(data.dataSet)) request.response().status(400).send(`Missing parameter 'dataSet' in request body!`);
-        else if (!type.array(data.dataSetFields)) request.response().status(400).send(`Missing parameter 'dataSetFields' in request body!`);
         else {
 
             // make sure the data set exists
@@ -61,7 +60,6 @@ export default class DataVersionController extends Controller {
             if (!dataSet) {
                 dataSet = await new this.db.dataSet({
                     identifier: data.dataSet,
-                    dataSetField: data.dataSetFields.map(fieldName => new this.db.dataSetField({fieldName})),
                 }).save();
             }
 

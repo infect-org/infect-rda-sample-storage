@@ -73,6 +73,42 @@ section('Source Code', (section) => {
 
 
 
+
+
+
+    section.test('List Code: Filter', async() => {
+        const service = new Service();
+        const client = new HTTP2Client();
+        await service.load();
+
+        const identifier = 'source-identifier-'+Math.round(Math.random()*100000);
+
+        await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code`)
+            .expect(201)
+            .send({
+                sourceCode: 'console.log("reduce");',
+                identifier,
+                type: 'reducer',
+            });
+
+        const response = await client.get(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code`)
+            .query({
+                identifier,
+            })
+            .expect(200)
+            .send();
+
+        const data = await response.getData();
+        assert(data);
+        assert.equal(data.length, 1);
+
+        await section.wait(200);
+        await service.end();
+        await client.end();
+    });
+
+
+
     section.destroy(async() => {
         await sm.stopServices();
     });

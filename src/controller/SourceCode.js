@@ -51,8 +51,17 @@ export default class SourceCodeController extends Controller {
     /**
     * return source code for the compute service
     */
-    async list() {
-        const source = await this.db.sourceCode('*').getSourceCodeType('*').raw().find();
+    async list(request) {
+        const filter = {};
+
+        if (request.hasQueryParameter('identifier')) {
+            filter.identifier = request.getQueryParameter('identifier');
+        }
+
+        const source = await this.db.sourceCode('*', filter)
+            .getSourceCodeType('*')
+            .raw()
+            .find();
 
         return source.map(item => ({
             sourceCode: item.sourceCode,

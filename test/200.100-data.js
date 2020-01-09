@@ -36,7 +36,6 @@ section('Data', (section) => {
             .send({
                 identifier: id,
                 dataSet: id,
-                dataSetFields: ['bacteriumId', 'antibioticId', 'ageGroupId', 'regionId', 'sampleDate', 'resistance']
             });
         
         const data = await response.getData();
@@ -60,7 +59,7 @@ section('Data', (section) => {
                     hospitalStatusId: Math.round(Math.random()*10000000),
                     sampleDate: new Date().toISOString(),
                     resistance: Math.round(Math.random()*2),
-                    sampleId: 'sample-id-'+Math.round(Math.random()*1000000),
+                    uniqueIdentifier: 'sample-id-'+Math.round(Math.random()*1000000),
                 }],
             });
 

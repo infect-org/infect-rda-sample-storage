@@ -54,7 +54,7 @@ section('Duplicate Data', (section) => {
             hospitalStatusId: Math.round(Math.random()*10000000),
             sampleDate: new Date().toISOString(),
             resistance: Math.round(Math.random()*2),
-            sampleId: 'sample-id-'+Math.round(Math.random()*1000000),
+            uniqueIdentifier: 'sample-id-'+Math.round(Math.random()*1000000),
         }];
 
 
@@ -66,6 +66,17 @@ section('Duplicate Data', (section) => {
                 records: records,
             });
 
+        // add new
+        records.push({
+            bacteriumId: Math.round(Math.random()*10000000),
+            antibioticId: Math.round(Math.random()*10000000),
+            ageGroupId: Math.round(Math.random()*10000000),
+            regionId: Math.round(Math.random()*10000000),
+            hospitalStatusId: Math.round(Math.random()*10000000),
+            sampleDate: new Date().toISOString(),
+            resistance: Math.round(Math.random()*2),
+            uniqueIdentifier: 'sample-id-'+Math.round(Math.random()*1000000),
+        });
 
 
         section.notice('import duplicate records');

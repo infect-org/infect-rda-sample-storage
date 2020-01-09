@@ -13,7 +13,6 @@ const log = logd.module('infect-rda-sample-storage');
 // controllers
 import DataController from './controller/Data.js';
 import DataVersionController from './controller/DataVersion.js';
-import DataSetInfoController from './controller/DataSetInfo.js'
 import ShardController from './controller/Shard.js';
 import SourceCodeController from './controller/SourceCode.js';
 
@@ -60,7 +59,6 @@ export default class InfectSampleStorageService extends RDAService {
         // register controllers
         this.registerController(new DataController(options));
         this.registerController(new DataVersionController(options));
-        this.registerController(new DataSetInfoController(options));
         this.registerController(new ShardController(options));
         this.registerController(new SourceCodeController(options));
 
