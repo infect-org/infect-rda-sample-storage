@@ -27,7 +27,7 @@ export default class ShardController extends Controller {
     */
     async create(request) {
         const data = await request.getData();
-        
+
         if (!data) request.response().status(400).send(`Missing request body!`);
         else if (!type.object(data)) request.response().status(400).send(`Request body must be a json object!`);
         else if (!type.string(data.dataSet)) request.response().status(400).send(`Missing parameter 'dataSet' in request body!`);
@@ -44,7 +44,7 @@ export default class ShardController extends Controller {
 
             // load he data groups for the given data set
             const groups = await this.db.dataGroup('id').getDataVersion().fetchDataVersionStatus({
-                identifier: 'active'
+                identifier: this.db.getORM().in(['active', 'preview'])
             }).getDataSet({
                 identifier: data.dataSet
             }).raw().find();

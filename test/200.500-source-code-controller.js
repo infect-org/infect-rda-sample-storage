@@ -12,6 +12,7 @@ const host = 'http://l.dns.porn';
 
 section('Source Code', (section) => {
     let sm;
+    
 
     section.setup(async() => {
         sm = new ServiceManager({
@@ -19,7 +20,6 @@ section('Source Code', (section) => {
         });
         
         await sm.startServices('rda-service-registry');
-
     });
 
 
@@ -29,13 +29,20 @@ section('Source Code', (section) => {
         const client = new HTTP2Client();
         await service.load();
 
+        // ensure the infect-test dataset
+        await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`)
+            .expect(201)
+            .send({
+                identifier: 'id-'+Math.round(Math.random()*10000000),
+                dataSet: 'infect-test',
+            });
 
         await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code`)
             .expect(201)
             .send({
-                sourceCode: 'console.log("map");',
-                identifier: 'source-identifier-'+Math.round(Math.random()*100000),
-                type: 'mapper',
+                sourceText: 'console.log("map");',
+                specifier: 'source-specifier-'+Math.round(Math.random()*100000),
+                dataSetIdentifier: 'infect-test',
             });
 
         await section.wait(200);
@@ -52,9 +59,9 @@ section('Source Code', (section) => {
         await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code`)
             .expect(201)
             .send({
-                sourceCode: 'console.log("reduce");',
-                identifier: 'source-identifier-'+Math.round(Math.random()*100000),
-                type: 'reducer',
+                sourceText: 'console.log("reduce");',
+                specifier: 'source-specifier-'+Math.round(Math.random()*100000),
+                dataSetIdentifier: 'infect-test',
             });
 
         const response = await client.get(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code`)
@@ -81,19 +88,19 @@ section('Source Code', (section) => {
         const client = new HTTP2Client();
         await service.load();
 
-        const identifier = 'source-identifier-'+Math.round(Math.random()*100000);
+        const specifier = 'source-specifier-'+Math.round(Math.random()*100000);
 
         await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code`)
             .expect(201)
             .send({
-                sourceCode: 'console.log("reduce");',
-                identifier,
-                type: 'reducer',
+                sourceText: 'console.log("reduce");',
+                specifier,
+                dataSetIdentifier: 'infect-test',
             });
 
         const response = await client.get(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code`)
             .query({
-                identifier,
+                specifier,
             })
             .expect(200)
             .send();
@@ -101,6 +108,51 @@ section('Source Code', (section) => {
         const data = await response.getData();
         assert(data);
         assert.equal(data.length, 1);
+
+        await section.wait(200);
+        await service.end();
+        await client.end();
+    });
+
+
+
+
+
+
+    section.test('List Code: Filter dataset', async() => {
+        const service = new Service();
+        const client = new HTTP2Client();
+        await service.load();
+
+        const specifier = 'source-specifier-'+Math.round(Math.random()*100000);
+
+         // ensure the infect-test dataset
+        await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`)
+            .expect(201)
+            .send({
+                identifier: 'id-'+Math.round(Math.random()*10000000),
+                dataSet: specifier,
+            });
+
+        await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code`)
+            .expect(201)
+            .send({
+                sourceText: specifier,
+                specifier,
+                dataSetIdentifier: specifier,
+            });
+
+        const response = await client.get(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code`)
+            .query({
+                dataSetIdentifier: specifier,
+            })
+            .expect(200)
+            .send();
+
+        const data = await response.getData();
+        assert(data);
+        assert.equal(data.length, 1);
+        assert.equal(data[0].sourceText, specifier);
 
         await section.wait(200);
         await service.end();

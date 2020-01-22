@@ -37,7 +37,6 @@ section('Data Version', (section) => {
             .send({
                 identifier: id,
                 dataSet: 'test',
-                dataSetFields: ['id']
             });
 
         const data = await response.getData();

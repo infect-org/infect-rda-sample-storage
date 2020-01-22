@@ -15,6 +15,7 @@ import DataController from './controller/Data.js';
 import DataVersionController from './controller/DataVersion.js';
 import ShardController from './controller/Shard.js';
 import SourceCodeController from './controller/SourceCode.js';
+import SourceCodeLoaderController from './controller/SourceCodeLoader.js';
 
 
 
@@ -61,6 +62,7 @@ export default class InfectSampleStorageService extends RDAService {
         this.registerController(new DataVersionController(options));
         this.registerController(new ShardController(options));
         this.registerController(new SourceCodeController(options));
+        this.registerController(new SourceCodeLoaderController(options));
 
         await super.load();
 

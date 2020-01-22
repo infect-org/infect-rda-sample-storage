@@ -14,6 +14,7 @@ export default class SourceCodeController extends Controller {
         this.db = db;
         this.enableAction('list');
         this.enableAction('create');
+        this.enableAction('delete');
     }
 
 
@@ -24,22 +25,47 @@ export default class SourceCodeController extends Controller {
     * add source code to the db
     */
     async create(request) {
-         const data = await request.getData();
+        const data = await request.getData();
 
         if (!data) request.response().status(400).send(`Missing request body!`);
         else if (!type.object(data)) request.response().status(400).send(`Request body must be a json object!`);
-        else if (!type.string(data.sourceCode)) request.response().status(400).send(`Missing parameter 'sourceCode' in request body!`);
-        else if (!type.string(data.identifier)) request.response().status(400).send(`Missing parameter 'identifier' in request body!`);
-        else if (!type.string(data.type)) request.response().status(400).send(`Missing parameter 'type' in request body!`);
+        else if (!type.string(data.sourceText)) request.response().status(400).send(`Missing parameter 'sourceText' in request body!`);
+        else if (!type.string(data.specifier)) request.response().status(400).send(`Missing parameter 'specifier' in request body!`);
+        else if (!type.string(data.dataSetIdentifier)) request.response().status(400).send(`Missing parameter 'dataSetIdentifier' in request body!`);
         else {
+            const dataSet = await this.db.dataSet({
+                identifier: data.dataSetIdentifier
+            }).findOne();
+
+            if (!dataSet) {
+                return await request.response().status(400).send(`Dataset '${data.dataSetIdentifier}' does not exist!`);
+            }
 
             await new this.db.sourceCode({
-                sourceCode: data.sourceCode,
-                identifier: data.identifier,
-                sourceCodeType: this.db.sourceCodeType({
-                    identifier: data.type,
-                })
+                sourceText: data.sourceText,
+                specifier: data.specifier,
+                dataSet,
             }).save();
+        }
+    }
+
+
+
+
+
+
+
+    async delete(request) {
+        const specifier = decodeURIComponent(request.getParameter('id'));
+
+        const item = await this.db.sourceCode('*', {
+            specifier,
+        }).findOne();
+
+        if (item) {
+            await item.delete();
+        } else {
+            return await request.response().status(404).send(`Source Code ${specifier} not found!`);
         }
     }
 
@@ -54,19 +80,18 @@ export default class SourceCodeController extends Controller {
     async list(request) {
         const filter = {};
 
-        if (request.hasQueryParameter('identifier')) {
-            filter.identifier = request.getQueryParameter('identifier');
+        if (request.hasQueryParameter('specifier')) {
+            filter.specifier = request.getQueryParameter('specifier');
         }
 
-        const source = await this.db.sourceCode('*', filter)
-            .getSourceCodeType('*')
-            .raw()
-            .find();
+        const query = this.db.sourceCode('*', filter);
 
-        return source.map(item => ({
-            sourceCode: item.sourceCode,
-            identifier: item.identifier,
-            type: item.sourceCodeType.identifier,
-        }));
+        if (request.hasQueryParameter('dataSetIdentifier')) {
+            query.getDataSet({
+                identifier: request.getQueryParameter('dataSetIdentifier')
+            });
+        }
+
+        return query.raw().find();
     }
 }

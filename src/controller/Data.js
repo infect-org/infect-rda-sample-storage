@@ -49,11 +49,16 @@ export default class DataController extends Controller {
 
 
                 // get the actual data
-                const data = await this.db.data('data', {
+                const data = await this.db.data('*', {
                     id_dataGroup: this.db.getORM().in(dataGroups.map(g => g.id))
-                }).order('id').offset(parseInt(query.offset, 10)).limit(parseInt(query.limit, 10)).raw().find();
+                }).order('id').offset(parseInt(query.offset, 10)).limit(parseInt(query.limit, 10)).getDataVersion('identifier').getDataSet('identifier').raw().find();
 
-                return data;
+                return data.map((data) => ({
+                    ...data.data,
+                    dataVersionId: data.dataVersion.id,
+                    dataSetId: data.dataVersion.dataSet.id,
+                    datasetIdentifier: data.dataVersion.dataSet.identifier,
+                }));
             }
         } else throw new Error('not implemented (missing filter)');
     }
@@ -77,7 +82,7 @@ export default class DataController extends Controller {
         else if (!type.array(data.records)) request.response().status(400).send(`Missing records array on the request body!`);
         else if (!type.number(data.dataVersionId)) request.response().status(400).send(`Missing the property 'dataVersionId' on the request body!`);
         else {
-            
+
             // basic schema validation for the data
             for (const record of data.records) {
                 if (!type.object(record)) {
@@ -98,7 +103,7 @@ export default class DataController extends Controller {
             // prevent duplicate key errors
             const existingRecords = await this.db.data('uniqueIdentifier', {
                 uniqueIdentifier: this.db.getORM().in(data.records.map(r => r.uniqueIdentifier)),
-            }).getDataVersion().getDataSet().getDataVersion({
+            }).getDataVersion({
                 id: data.dataVersionId,
             }).raw().find();
 
@@ -107,7 +112,6 @@ export default class DataController extends Controller {
 
             let importedRecordCount = 0;
             let duplicateRecordCount = 0;
-
 
             if (recordCount > 0) {
 
@@ -123,13 +127,12 @@ export default class DataController extends Controller {
                     id: data.dataVersionId
                 }).findOne();
 
-
                 let currentGroup = groups.shift();
 
                 // store data
                 for (const record of data.records) {
-                    if (!existingMap.has(record.sampleId)) {
-                        existingMap.add(record.sampleId);
+                    if (!existingMap.has(record.uniqueIdentifier)) {
+                        existingMap.add(record.uniqueIdentifier);
 
                         const row = {
                             dataVersion: dataVersion,
@@ -142,7 +145,7 @@ export default class DataController extends Controller {
 
                         // switch group if required
                         currentGroup.recordCount--;
-                        if (currentGroup.recordCount <= 0) currentGroup = groups.shift();
+                        if (currentGroup.recordCount < 0) currentGroup = groups.shift();
 
                         if (!currentGroup) throw new Error(`Failed to get group for recrods, created not enough groups!`);
 

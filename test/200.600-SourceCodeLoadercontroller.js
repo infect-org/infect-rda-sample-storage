@@ -4,16 +4,15 @@ import HTTP2Client from '@distributed-systems/http2-client';
 import assert from 'assert';
 import log from 'ee-log';
 import ServiceManager from '@infect/rda-service-manager';
-import {DataSet} from '@infect/rda-fixtures';
-
 
 
 const host = 'http://l.dns.porn';
 
 
 
-section('Data Fetching', (section) => {
+section('Source Code Loader', (section) => {
     let sm;
+    
 
     section.setup(async() => {
         sm = new ServiceManager({
@@ -21,57 +20,52 @@ section('Data Fetching', (section) => {
         });
         
         await sm.startServices('rda-service-registry');
-
     });
 
 
-    section.test('Get Records', async() => {
-        section.setTimeout(5000);
-        
+
+    section.test('Create Code', async() => {
         const service = new Service();
         const client = new HTTP2Client();
         await service.load();
 
-
-        
-        // add fixtures
-        section.notice('create fixtures');
-        const dataSet = new DataSet();
-        const dataSetId = await dataSet.create({
-            length: 2500
-        });
-
-
-        section.notice('create shards');
-        await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.shard`)
+        const response = await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code-loader`)
             .expect(201)
-            .send({
-                dataSet: dataSetId,
-                shards: ['a', 'b', 'c', 'd'],
-            });
-
-
-
-        section.notice('load page');
-        const response = await client.get(`${host}:${service.getPort()}/infect-rda-sample-storage.data`)
-            .expect(200)
-            .query({
-                shard: 'a',
-                offset: 0,
-                limit: 100,
-            })
             .send();
 
         const data = await response.getData();
-
-        assert(data);
-        assert.equal(data.length, 100);
 
         await section.wait(200);
         await service.end();
         await client.end();
     });
 
+
+
+
+    section.test('Link Code', async() => {
+        const service = new Service();
+        const client = new HTTP2Client();
+        await service.load();
+
+        const id = 'id-'+Math.round(Math.random()*10000000);
+        await client.post(`${host}:${service.getPort()}/infect-rda-sample-storage.data-version`)
+            .expect(201)
+            .send({
+                identifier: id,
+                dataSet: id,
+            });
+
+        const response = await client.patch(`${host}:${service.getPort()}/infect-rda-sample-storage.source-code-loader/${id}`)
+            .expect(200)
+            .send();
+
+        const data = await response.getData();
+
+        await section.wait(200);
+        await service.end();
+        await client.end();
+    });
 
 
     section.destroy(async() => {

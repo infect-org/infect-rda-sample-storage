@@ -17,3 +17,37 @@ alter table infect_sample_storage."data" add column "created" timestamp without 
 drop table infect_sample_storage."dataSetField";
 
 insert into infect_sample_storage."dataVersionStatus" ("identifier") values ('preview');
+
+alter table infect_sample_storage."sourceCode" rename column "identifier" to "specifier";
+alter table infect_sample_storage."sourceCode" drop column "id_sourceCodeType";
+
+drop table infect_sample_storage."sourceCodeType";
+
+
+delete from infect_sample_storage."sourceCode" where true;
+
+alter table infect_sample_storage."sourceCode" add constraint "sourceCode_unique_specifier" unique("specifier");
+alter table infect_sample_storage."sourceCode" rename column "sourceCode" to "sourceText";
+
+
+create table infect_sample_storage."sourceCode_dataSet" (
+    id serial not null,
+    "id_sourceCode" int not null,
+    "id_dataSet" int not null,
+    created timestamp without time zone not null default now(),
+    updated timestamp without time zone not null default now(),
+    constraint "sourceCode_dataSet_pk"
+        primary key (id),
+    constraint "dataVersion_unique_links"
+        unique ("id_dataSet", "id_sourceCode"),
+    constraint "sourceCode_dataSetfk_sourceCode"
+        foreign key ("id_sourceCode")
+        references infect_sample_storage."sourceCode" ("id")
+        on update cascade
+        on delete cascade,
+    constraint "sourceCode_dataSet_fk_dataSet"
+        foreign key ("id_dataSet")
+        references infect_sample_storage."dataSet" ("id")
+        on update cascade
+        on delete cascade
+);
