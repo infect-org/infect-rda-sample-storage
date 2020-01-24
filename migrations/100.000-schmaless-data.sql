@@ -51,3 +51,7 @@ create table infect_sample_storage."sourceCode_dataSet" (
         on update cascade
         on delete cascade
 );
+
+
+create index "data_uniqueIdentifier_index"
+    on infect_sample_storage.data ("uniqueIdentifier");

@@ -23,12 +23,13 @@
   "license": "MIT",
   "devDependencies": {
     "@distributed-systems/http2-client": "^1.2.2",
-    "@infect/rda-fixtures": "^4.0.0",
+    "@infect/rda-fixtures": "^5.0.0",
     "@infect/rda-service-manager": "^2.0.4",
+    "@infect/rda-service-registry": "^3.0.0",
     "section-tests": "^2.2.3"
   },
   "dependencies": {
-    "@infect/rda-service": "^4.1.1",
+    "@infect/rda-service": "^5.0.0",
     "ee-log": "^3.0.7",
     "ee-types": "^2.2.1",
     "envr": "^2.1.4",

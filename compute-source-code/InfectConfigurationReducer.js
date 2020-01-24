@@ -1,7 +1,7 @@
 import ConfidenceIntervalCalculator from './lib/ConfidenceIntervalCalculator.js';
 
 
-export default class InfectReducer {
+export default class InfectConfigurationReducer {
 
 
 
@@ -31,6 +31,7 @@ export default class InfectReducer {
         };
 
 
+
         // combine data
         for (const { shard, mappingResults } of sampleSets) {
             for (const matrixPoint of mappingResults.values) {
@@ -38,9 +39,8 @@ export default class InfectReducer {
 
                 if (!matrix.has(id)) {
                     matrix.set(id, {
-                        resistant: 0,
-                        intermediate: 0,
-                        susceptible: 0,
+                        animalIds: new Set(),
+                        regionIds: new Set(),
                         modelCount: 0,
                         compoundSubstanceId: matrixPoint.compoundSubstanceId,
                         microorganismId: matrixPoint.microorganismId,
@@ -49,9 +49,14 @@ export default class InfectReducer {
 
                 const mapping = matrix.get(id);
 
-                mapping.resistant += matrixPoint.resistant;
-                mapping.intermediate += matrixPoint.intermediate;
-                mapping.susceptible += matrixPoint.susceptible;
+                for (const id of matrixPoint.animalIds) {
+                    mapping.animalIds.add(id);
+                }
+
+                for (const id of matrixPoint.regionIds) {
+                    mapping.regionIds.add(id);
+                }
+
                 mapping.modelCount += matrixPoint.modelCount;
             };
 
@@ -80,23 +85,33 @@ export default class InfectReducer {
             }
         }
 
+        const microorganismIds = new Set();
+        const compoundSubstanceIds = new Set();
+        const regionIds = new Set();
+        const animalIds = new Set();
 
-        // compute ci
-        for (const matrixPoint of matrix.values()) {
-            const ci = this.ciClaculator.compute({
-                susceptibleCount: matrixPoint.susceptible,
-                resistantCount: matrixPoint.resistant + matrixPoint.intermediate, 
-            });
 
-            matrixPoint.resistantPercent = Math.round(100 - matrixPoint.susceptible / (matrixPoint.intermediate + matrixPoint.susceptible + matrixPoint.resistant) * 100),
-            matrixPoint.confidenceInterval = {
-                upperBound: ci.confidenceIntervalUpperBound,
-                lowerBound: ci.confidenceIntervalLowerBound,
-            };
+        for (const [ key, matrixPoint ] of matrix.entries()) {
+            microorganismIds.add(matrixPoint.microorganismId);
+            compoundSubstanceIds.add(matrixPoint.compoundSubstanceId);
+
+            for (const id of matrixPoint.animalIds.values()) {
+                animalIds.add(id);
+            }
+
+            for (const id of matrixPoint.regionIds.values()) {
+                regionIds.add(id);
+            }
         }
 
+
+        data.microorganismIds = Array.from(microorganismIds.values());
+        data.compoundSubstanceIds = Array.from(compoundSubstanceIds.values());
+        data.regionIds = Array.from(regionIds.values());
+        data.animalIds = Array.from(animalIds.values());
+
+
         // totals & results
-        data.values = Array.from(matrix.values());
         data.timings.filteringPerShard = data.timings.filtering/data.shards.length;
         data.timings.reduction = Number(process.hrtime.bigint()- start)/1000000;
         data.counters.filteredPercent = Math.round(data.counters.filteredModelCount / data.counters.totalModelCount * 100, 2);

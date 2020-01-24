@@ -20,7 +20,7 @@ section('Shard', (section) => {
             args: '--dev.testing --log-level=error+ --log-module=*'.split(' ')
         });
         
-        await sm.startServices('rda-service-registry');
+        await sm.startServices('@infect/rda-service-registry');
 
     });
 

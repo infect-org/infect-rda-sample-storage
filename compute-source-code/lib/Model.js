@@ -29,6 +29,12 @@ export default class Model {
 
 
 
+    hasValue(valueName) {
+        return typeof this[valueName] !== 'undefined' && this[valueName] !== null;
+    }
+
+
+
     getValue(valueName) {
         if (!this.isValid) {
             throw new Error(`Cannot return value '${valueName}' for model with the unique identifier '${this.uniqueIdentifier}'. The model is invalid!`);
