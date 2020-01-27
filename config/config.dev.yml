@@ -1,6 +1,6 @@
 database:
     type: postgres
-    database: infect
+    database: ${SAMPLE_STORAGE_SERVICE_DB_NAME}
     schema: infect_sample_storage
     hosts:
         - host: ${SAMPLE_STORAGE_SERVICE_DB_HOST}
