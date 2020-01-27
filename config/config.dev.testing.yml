@@ -3,9 +3,10 @@ database:
     database: infect
     schema: infect_sample_storage
     hosts:
-        - host: 10.80.100.1
-          username: postgres
-          password: ${SAMPLE_STORAGE_DB_PASSWORD}
+        - host: ${SAMPLE_STORAGE_SERVICE_DB_HOST}
+          username: ${SAMPLE_STORAGE_SERVICE_DB_USER}
+          password: ${SAMPLE_STORAGE_SERVICE_DB_PASSWORD}
+          port: 5432
           port: 5432
           pools:
             - read
