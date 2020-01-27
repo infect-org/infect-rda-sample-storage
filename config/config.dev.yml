@@ -7,7 +7,6 @@ database:
           username: ${SAMPLE_STORAGE_SERVICE_DB_USER}
           password: ${SAMPLE_STORAGE_SERVICE_DB_PASSWORD}
           port: 5432
-          port: 5432
           pools:
             - read
             - write
