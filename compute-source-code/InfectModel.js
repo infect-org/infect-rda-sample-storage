@@ -44,6 +44,10 @@ export default class InfectModel extends Model {
             uniqueIdentifier,
         });
 
+        if (!resistanceQualitative) {
+            this.setInValid();
+        }
+
         if (!Number.isInteger(compoundSubstanceId) || !Number.isInteger(microorganismId)) {
             this.setInValid();
         }

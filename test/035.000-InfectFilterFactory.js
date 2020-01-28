@@ -70,5 +70,57 @@ section.continue('Compute Source Code', (section) => {
                 patientAgeRangeTo: 20,
             })), false);
         });
+
+
+
+
+        section.test('empty filter arrays', async() => {
+            const factory = new InfectFilterFactory();
+            await factory.load();
+
+            const filter = factory.createFilter({
+                regionIds: [],
+                hospitalStatusIds: [],
+                animalIds: [4, 5],
+                ageGroupIntervals: [],
+            });
+
+
+            //console.log(util.inspect(filter, {depth: 20}));
+
+            assert.equal(filter.applyToModel(new Model({})), false);
+
+
+            //filter.debug();
+            assert.equal(filter.applyToModel(new Model({
+                animalId: 1,
+                countryId: 2,
+                patientSettingId: 3,
+                patientSexId: 4,
+                regionId: 5,
+                patientAgeRangeFrom: 10,
+                patientAgeRangeTo: 20,
+            })), false);
+
+            assert.equal(filter.applyToModel(new Model({
+                animalId: 1,
+                countryId: 2,
+                patientSettingId: 3,
+                patientSexId: 4,
+                regionId: 5,
+                patientAgeRangeFrom: 10,
+                patientAgeRangeTo: 1500,
+            })), false);
+
+            assert.equal(filter.applyToModel(new Model({
+                animalId: 5,
+                countryId: 2,
+                patientSettingId: 3,
+                patientSexId: 4,
+                regionId: 5,
+                patientAgeRangeFrom: 10,
+                patientAgeRangeTo: 20,
+            })), true);
+        });
     });
 });

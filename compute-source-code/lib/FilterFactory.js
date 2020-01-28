@@ -74,7 +74,7 @@ export default class FilterFactory {
         // built for each item in the array
         if (Array.isArray(filterConfig)) {
 
-            if (filterConfig.length === 0) return;
+            if (filterConfig.length === 0) return comparators;
 
 
             // by convention, the filter field name is the on below
@@ -101,7 +101,7 @@ export default class FilterFactory {
             for (const [filterFieldName, filterValue] of Object.entries(filterConfig)) {
 
                 // ignore filter that are not set
-                if (filterValue === null || filterValue === undefined || Array.isArray(filterValue) && filterValue.length === 0) return;
+                if (filterValue === null || filterValue === undefined || Array.isArray(filterValue) && filterValue.length === 0) continue;
 
 
                 if (!comparatorsConfig.has(filterFieldName)) {
