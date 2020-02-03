@@ -59,6 +59,7 @@ export default class InfectConfigurationMapper {
         for (const matrixPoint of matrixMap.values()) {
             matrixPoint.animalIds = [...matrixPoint.animalIds.values()];
             matrixPoint.regionIds = [...matrixPoint.regionIds.values()];
+            matrixPoint.patientSettingIds = [...matrixPoint.patientSettingIds.values()];
         }
 
         const filterDuration = process.hrtime.bigint()-filterStart;
