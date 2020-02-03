@@ -24,6 +24,7 @@ export default class InfectModel extends Model {
         dataVersionId,
         dataSetId,
         datasetIdentifier,
+        dataVersionStatusIdentifier,
     } = {}) {
         super({
             animalId,
@@ -42,6 +43,7 @@ export default class InfectModel extends Model {
             sampleSourceOther,
             sampleSourceUrine,
             uniqueIdentifier,
+            dataVersionStatusIdentifier,
         });
 
         if (!resistanceQualitative) {

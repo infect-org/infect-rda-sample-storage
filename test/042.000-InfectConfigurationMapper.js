@@ -24,6 +24,7 @@ section.continue('Compute Source Code', (section) => {
                 microorganismId: 23,
                 compoundSubstanceId: 25,
                 resistanceQualitative: 'i',
+                dataVersionStatusIdentifier: 'active',
             });
 
             const finteredModel = new InfectModel({
@@ -37,6 +38,7 @@ section.continue('Compute Source Code', (section) => {
                 microorganismId: 23,
                 compoundSubstanceId: 25,
                 resistanceQualitative: 'r',
+                dataVersionStatusIdentifier: 'active',
             });
 
 

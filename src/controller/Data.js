@@ -51,13 +51,20 @@ export default class DataController extends Controller {
                 // get the actual data
                 const data = await this.db.data('*', {
                     id_dataGroup: this.db.getORM().in(dataGroups.map(g => g.id))
-                }).order('id').offset(parseInt(query.offset, 10)).limit(parseInt(query.limit, 10)).getDataVersion('identifier').getDataSet('identifier').raw().find();
+                }).order('id')
+                  .offset(parseInt(query.offset, 10))
+                  .limit(parseInt(query.limit, 10))
+                  .getDataVersion('identifier')
+                  .fetchDataVersionStatus('identifier')
+                  .getDataSet('identifier')
+                  .raw().find();
 
                 return data.map((data) => ({
                     ...data.data,
                     dataVersionId: data.dataVersion.id,
                     dataSetId: data.dataVersion.dataSet.id,
                     datasetIdentifier: data.dataVersion.dataSet.identifier,
+                    dataVersionStatusIdentifier: data.dataVersion.dataVersionStatus.identifier,
                 }));
             }
         } else throw new Error('not implemented (missing filter)');
@@ -88,7 +95,7 @@ export default class DataController extends Controller {
                 if (!type.object(record)) {
                     return request.response()
                         .status(400)
-                        .send(`Got records that don't contain obecjts as data!`);
+                        .send(`Got records that don't contain objects as data!`);
                 }
 
                 if (!type.string(record.uniqueIdentifier)) {

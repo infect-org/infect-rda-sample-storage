@@ -26,6 +26,7 @@ section.continue('Compute Source Code', (section) => {
                 microorganismId: 23,
                 compoundSubstanceId: 25,
                 resistanceQualitative: 'i',
+                dataVersionStatusIdentifier: 'active',
             });
 
             const model2 = new InfectModel({
@@ -39,6 +40,7 @@ section.continue('Compute Source Code', (section) => {
                 microorganismId: 23,
                 compoundSubstanceId: 25,
                 resistanceQualitative: 'r',
+                dataVersionStatusIdentifier: 'active',
             });
 
             const model3 = new InfectModel({
@@ -52,6 +54,7 @@ section.continue('Compute Source Code', (section) => {
                 microorganismId: 23,
                 compoundSubstanceId: 1,
                 resistanceQualitative: 's',
+                dataVersionStatusIdentifier: 'active',
             });
 
 

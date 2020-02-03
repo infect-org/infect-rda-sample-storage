@@ -37,6 +37,7 @@ export default class InfectConfigurationMapper {
                     matrixMap.set(id,  {
                         animalIds: new Set(),
                         regionIds: new Set(),
+                        patientSettingIds: new Set(),
                         microorganismId: model.microorganismId,
                         compoundSubstanceId: model.compoundSubstanceId,
                         modelCount: 0,
@@ -47,6 +48,8 @@ export default class InfectConfigurationMapper {
 
                 if (model.hasValue('animalId')) matrixPoint.animalIds.add(model.getValue('animalId'));
                 if (model.hasValue('regionId')) matrixPoint.regionIds.add(model.getValue('regionId'));
+                if (model.hasValue('patientSettingId')) matrixPoint.patientSettingIds.add(model.getValue('patientSettingId'));
+
                 matrixPoint.modelCount++;
             } else {
                 filteredModelCount++;

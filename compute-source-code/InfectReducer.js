@@ -101,10 +101,6 @@ export default class InfectReducer {
         data.timings.reduction = Number(process.hrtime.bigint()- start)/1000000;
         data.counters.filteredPercent = Math.round(data.counters.filteredModelCount / data.counters.totalModelCount * 100, 2);
 
-
-        // filter samples, that have less than 6 samples
-        //data.values = data.values.filter(value => value.modelCount > 5);
-
         return data;
     }
 }

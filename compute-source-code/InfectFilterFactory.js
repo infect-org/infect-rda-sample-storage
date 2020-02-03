@@ -40,6 +40,11 @@ export default class InfectFilterFactory extends FilterFactory {
             comparatorName: 'one-of',
             voidIsTrue: false,
         }, {
+            filterFieldName: 'dataVersionStatusIdentifier',
+            modelFieldName: 'dataVersionStatusIdentifier',
+            comparatorName: 'one-of',
+            voidIsTrue: false,
+        }, {
             filterFieldName: 'ageGroupIntervals',
             comparatorName: 'some-of',
             voidIsTrue: false,

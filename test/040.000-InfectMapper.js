@@ -24,6 +24,7 @@ section.continue('Compute Source Code', (section) => {
                 microorganismId: 23,
                 compoundSubstanceId: 25,
                 resistanceQualitative: 'i',
+                dataVersionStatusIdentifier: 'active',
             });
 
             const finteredModel = new InfectModel({
@@ -37,6 +38,7 @@ section.continue('Compute Source Code', (section) => {
                 microorganismId: 23,
                 compoundSubstanceId: 25,
                 resistanceQualitative: 'r',
+                dataVersionStatusIdentifier: 'active',
             });
 
 
@@ -64,6 +66,53 @@ section.continue('Compute Source Code', (section) => {
             assert.equal(result.values[0].resistant, 0);
             assert.equal(result.counters.filteredModelCount, 1);
             assert.equal(result.counters.totalModelCount, 2);
+        });
+
+        section.test('map. remove previews', async() => {
+            const model = new InfectModel({
+                animalId: 1,
+                countryId: 2,
+                patientSettingId: 3,
+                patientSexId: 4,
+                regionId: 5,
+                patientAgeRangeFrom: 10,
+                patientAgeRangeTo: 20,
+                microorganismId: 23,
+                compoundSubstanceId: 25,
+                resistanceQualitative: 'i',
+                dataVersionStatusIdentifier: 'preview',
+            });
+
+            const finteredModel = new InfectModel({
+                animalId: 100,
+                countryId: 2,
+                patientSettingId: 3,
+                patientSexId: 4,
+                regionId: 5,
+                patientAgeRangeFrom: 10,
+                patientAgeRangeTo: 20,
+                microorganismId: 23,
+                compoundSubstanceId: 25,
+                resistanceQualitative: 'r',
+                dataVersionStatusIdentifier: 'active',
+            });
+
+
+            const mapper = new InfectMapper();
+            await mapper.load();
+
+            const result = await mapper.compute({ models: [model, finteredModel], filterConfiguration: {
+                dataVersionStatusIdentifier: ['active', 'preview'],
+            }});
+
+
+            assert.equal(result.counters.filteredModelCount, 0);
+
+            const result2 = await mapper.compute({ models: [model, finteredModel], filterConfiguration: {
+                dataVersionStatusIdentifier: ['active'],
+            }});
+
+            assert.equal(result2.counters.filteredModelCount, 1);
         });
     });
 });

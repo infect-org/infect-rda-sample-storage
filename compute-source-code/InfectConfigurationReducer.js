@@ -41,6 +41,7 @@ export default class InfectConfigurationReducer {
                     matrix.set(id, {
                         animalIds: new Set(),
                         regionIds: new Set(),
+                        patientSettingIds: new Set(),
                         modelCount: 0,
                         compoundSubstanceId: matrixPoint.compoundSubstanceId,
                         microorganismId: matrixPoint.microorganismId,
@@ -55,6 +56,10 @@ export default class InfectConfigurationReducer {
 
                 for (const id of matrixPoint.regionIds) {
                     mapping.regionIds.add(id);
+                }
+
+                for (const id of matrixPoint.patientSettingIds) {
+                    mapping.patientSettingIds.add(id);
                 }
 
                 mapping.modelCount += matrixPoint.modelCount;
@@ -89,6 +94,7 @@ export default class InfectConfigurationReducer {
         const compoundSubstanceIds = new Set();
         const regionIds = new Set();
         const animalIds = new Set();
+        const patientSettingIds = new Set();
 
 
         for (const [ key, matrixPoint ] of matrix.entries()) {
@@ -102,6 +108,10 @@ export default class InfectConfigurationReducer {
             for (const id of matrixPoint.regionIds.values()) {
                 regionIds.add(id);
             }
+
+            for (const id of matrixPoint.patientSettingIds.values()) {
+                patientSettingIds.add(id);
+            }
         }
 
 
@@ -109,16 +119,13 @@ export default class InfectConfigurationReducer {
         data.compoundSubstanceIds = Array.from(compoundSubstanceIds.values());
         data.regionIds = Array.from(regionIds.values());
         data.animalIds = Array.from(animalIds.values());
+        data.patientSettingIds = Array.from(patientSettingIds.values());
 
 
         // totals & results
         data.timings.filteringPerShard = data.timings.filtering/data.shards.length;
         data.timings.reduction = Number(process.hrtime.bigint()- start)/1000000;
         data.counters.filteredPercent = Math.round(data.counters.filteredModelCount / data.counters.totalModelCount * 100, 2);
-
-
-        // filter samples, that have less than 6 samples
-        //data.values = data.values.filter(value => value.modelCount > 5);
 
         return data;
     }

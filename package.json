@@ -23,9 +23,9 @@
   "license": "MIT",
   "devDependencies": {
     "@distributed-systems/http2-client": "^1.2.2",
-    "@infect/rda-fixtures": "^5.0.0",
+    "@infect/rda-fixtures": "^5.0.2",
     "@infect/rda-service-manager": "^2.0.4",
-    "@infect/rda-service-registry": "^3.0.1",
+    "@infect/rda-service-registry": "^3.0.3",
     "section-tests": "^2.2.3"
   },
   "dependencies": {
