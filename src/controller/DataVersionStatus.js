@@ -32,13 +32,13 @@ export default class DataVersionStatusController extends Controller {
 
         if (!data) request.response().status(400).send(`Missing request body!`);
         else if (!type.object(data)) request.response().status(400).send(`Request body must be a json object!`);
-        else if (!type.number(data.action)) request.response().status(400).send(`Missing the property 'action' on the request body!`);
+        else if (!type.string(data.action)) request.response().status(400).send(`Missing the property 'action' on the request body!`);
         else {
             const version = await this.db.dataVersion('*', {
                 identifier,
             }).findOne();
 
-            if (version) {
+            if (!version) {
                 return request.response()
                     .status(404)
                     .send(`Dataversion with the id ${identifier} was not found!`);
