@@ -28,20 +28,20 @@ export default class DataVersionStatusController extends Controller {
     */
     async update(request) {
         const data = await request.getData();
+        const identifier = request.parameter('id');
 
         if (!data) request.response().status(400).send(`Missing request body!`);
         else if (!type.object(data)) request.response().status(400).send(`Request body must be a json object!`);
-        else if (!type.array(data.identifier)) request.response().status(400).send(`Missing the property 'identifier' on the request body!`);
         else if (!type.number(data.action)) request.response().status(400).send(`Missing the property 'action' on the request body!`);
         else {
             const version = await this.db.dataVersion('*', {
-                identifier: data.identifier,
+                identifier,
             }).findOne();
 
             if (version) {
                 return request.response()
                     .status(404)
-                    .send(`Dataversion with the id ${data.identifier} was not found!`);
+                    .send(`Dataversion with the id ${identifier} was not found!`);
             }
 
             if (data.action === 'activate') {
