@@ -9,7 +9,7 @@ export default class DataVersionStatusController extends Controller {
 
 
     constructor({db}) {
-        super('data');
+        super('dataVersionStatus');
 
         this.db = db;
         this.enableAction('update');
