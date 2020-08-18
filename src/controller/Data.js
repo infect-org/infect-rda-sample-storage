@@ -110,6 +110,8 @@ export default class DataController extends Controller {
             // prevent duplicate key errors
             const existingRecords = await this.db.data('uniqueIdentifier', {
                 uniqueIdentifier: this.db.getORM().in(data.records.map(r => r.uniqueIdentifier)),
+            }).getDataVersion().getDataVersionStatus({
+                identifier: this.db.getORM().notIn('deleted')
             }).raw().find();
 
             const existingMap = new Set(existingRecords.map(record => record.uniqueIdentifier));

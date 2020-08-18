@@ -48,9 +48,13 @@ export default class DataVersionStatusController extends Controller {
                 version.dataVersionStatus = this.db.dataVersionStatus({
                     identifier: 'active',
                 });
-            } else {
+            } else if (data.action === 'deactivate') {
                 version.dataVersionStatus = this.db.dataVersionStatus({
                     identifier: 'preview',
+                });
+            } else if (data.action === 'delete') {
+                version.dataVersionStatus = this.db.dataVersionStatus({
+                    identifier: 'deleted',
                 });
             }
 
