@@ -110,8 +110,6 @@ export default class DataController extends Controller {
             // prevent duplicate key errors
             const existingRecords = await this.db.data('uniqueIdentifier', {
                 uniqueIdentifier: this.db.getORM().in(data.records.map(r => r.uniqueIdentifier)),
-            }).getDataVersion({
-                id: data.dataVersionId,
             }).raw().find();
 
             const existingMap = new Set(existingRecords.map(record => record.uniqueIdentifier));
@@ -162,6 +160,8 @@ export default class DataController extends Controller {
 
                 // persist changes
                 await transaction.commit();
+            } else {
+                duplicateRecordCount = data.records.length;
             }
 
             return {
