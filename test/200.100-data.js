@@ -24,6 +24,8 @@ section('Data', (section) => {
 
 
     section.test('Import data', async() => {
+        section.setTimeout(5000);
+
         const service = new Service();
         const client = new HTTP2Client();
         await service.load();

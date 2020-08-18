@@ -77,7 +77,7 @@ export default class FilterFactory {
             if (filterConfig.length === 0) return comparators;
 
 
-            // by convention, the filter field name is the on below
+            // by convention, the filter field name is the one below
             const filterFieldName = '$array-value';
 
             if (!comparatorsConfig.has(filterFieldName)) {

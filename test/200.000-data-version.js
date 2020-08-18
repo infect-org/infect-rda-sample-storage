@@ -24,6 +24,8 @@ section('Data Version', (section) => {
 
 
     section.test('Create a data version', async() => {
+        section.setTimeout(5000);
+        
         const service = new Service();
         const client = new HTTP2Client();
         await service.load();

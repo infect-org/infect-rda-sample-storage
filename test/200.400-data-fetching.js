@@ -51,7 +51,6 @@ section('Data Fetching', (section) => {
             });
 
 
-
         section.notice('load page');
         const response = await client.get(`${host}:${service.getPort()}/infect-rda-sample-storage.data`)
             .expect(200)

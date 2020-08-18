@@ -23,6 +23,8 @@ section('INFECT Sample Storage for RDA', (section) => {
 
 
     section.test('Start & stop service', async() => {
+        section.setTimeout(5000);
+        
         const service = new Service();
 
         await service.load();
