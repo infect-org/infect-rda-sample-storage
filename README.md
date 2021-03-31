@@ -38,3 +38,5 @@ the load evenly.
 Shards are shards of data that are loaded into compute nodes. When a
 cluster is created, it requests shards at the storage. Shards are made of data
 groups which represent groups of records.
+
+
