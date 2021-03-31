@@ -40,6 +40,21 @@ export default class InfectFilterFactory extends FilterFactory {
             comparatorName: 'one-of',
             voidIsTrue: false,
         }, {
+            filterFieldName: 'sampleSourceIds',
+            modelFieldName: 'sampleSourceIds',
+            comparatorName: 'one-of-many',
+            voidIsTrue: false,
+        }, {
+            filterFieldName: 'compoundSubstanceIds',
+            modelFieldName: 'compoundSubstanceId',
+            comparatorName: 'one-of',
+            voidIsTrue: false,
+        }, {
+            filterFieldName: 'microorganismIds',
+            modelFieldName: 'microorganismId',
+            comparatorName: 'one-of',
+            voidIsTrue: false,
+        }, {
             filterFieldName: 'dataVersionStatusIdentifier',
             modelFieldName: 'dataVersionStatusIdentifier',
             comparatorName: 'one-of',

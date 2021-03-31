@@ -38,6 +38,7 @@ export default class InfectConfigurationMapper {
                         animalIds: new Set(),
                         regionIds: new Set(),
                         patientSettingIds: new Set(),
+                        sampleSourceIds: new Set(),
                         microorganismId: model.microorganismId,
                         compoundSubstanceId: model.compoundSubstanceId,
                         modelCount: 0,
@@ -49,6 +50,11 @@ export default class InfectConfigurationMapper {
                 if (model.hasValue('animalId')) matrixPoint.animalIds.add(model.getValue('animalId'));
                 if (model.hasValue('regionId')) matrixPoint.regionIds.add(model.getValue('regionId'));
                 if (model.hasValue('patientSettingId')) matrixPoint.patientSettingIds.add(model.getValue('patientSettingId'));
+                if (model.hasValue('sampleSourceIds')) {
+                    for (const sampleSourceId of model.getValue('sampleSourceIds')) {
+                        matrixPoint.sampleSourceIds.add(sampleSourceId);
+                    }
+                }
 
                 matrixPoint.modelCount++;
             } else {
@@ -60,6 +66,7 @@ export default class InfectConfigurationMapper {
             matrixPoint.animalIds = [...matrixPoint.animalIds.values()];
             matrixPoint.regionIds = [...matrixPoint.regionIds.values()];
             matrixPoint.patientSettingIds = [...matrixPoint.patientSettingIds.values()];
+            matrixPoint.sampleSourceIds = [...matrixPoint.sampleSourceIds.values()];
         }
 
         const filterDuration = process.hrtime.bigint()-filterStart;

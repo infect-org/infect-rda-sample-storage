@@ -1,4 +1,5 @@
 import ConfidenceIntervalCalculator from './lib/ConfidenceIntervalCalculator.js';
+import PercentileCalculator from './lib/PercentileCalculator.js';
 
 
 export default class InfectReducer {
@@ -8,13 +9,17 @@ export default class InfectReducer {
 
     constructor() {
         this.ciClaculator = new ConfidenceIntervalCalculator();
+        this.percentileCaluclator = new PercentileCalculator();
     }
     
 
-
-    async compute(sampleSets, {
-        sampleCountFilterLowerThreshold,
-    } = {}) {
+    async compute({ 
+        dataSets,
+        subRoutines,
+        options: {
+            sampleCountFilterLowerThreshold,
+        } = {}
+    }) {
         const start = process.hrtime.bigint();
         const matrix = new Map();
         const data = {
@@ -30,21 +35,32 @@ export default class InfectReducer {
             shards: [],
         };
 
+        const discDiffusionPercentileSubRoutine = subRoutines.includes('DiscDiffusionPercentile');
+        const micPercentileSubRoutine = subRoutines.includes('MICPercentileSubRoutine');
+
 
         // combine data
-        for (const { shard, mappingResults } of sampleSets) {
+        for (const { shard, mappingResults } of dataSets) {
             for (const matrixPoint of mappingResults.values) {
                 const id = `${matrixPoint.microorganismId},${matrixPoint.compoundSubstanceId}`;
 
                 if (!matrix.has(id)) {
-                    matrix.set(id, {
+                    const data = {
                         resistant: 0,
                         intermediate: 0,
                         susceptible: 0,
                         modelCount: 0,
                         compoundSubstanceId: matrixPoint.compoundSubstanceId,
                         microorganismId: matrixPoint.microorganismId,
-                    });
+                        resistanceMICCount: 0,
+                        resistanceDiscDiffusionCount: 0,
+                        resistanceQualitativeCount: 0,
+                    };
+
+                    if (discDiffusionPercentileSubRoutine) data.discDiffusionValues = [];
+                    if (micPercentileSubRoutine) data.MICValues = [];
+
+                    matrix.set(id, data);
                 }
 
                 const mapping = matrix.get(id);
@@ -53,6 +69,18 @@ export default class InfectReducer {
                 mapping.intermediate += matrixPoint.intermediate;
                 mapping.susceptible += matrixPoint.susceptible;
                 mapping.modelCount += matrixPoint.modelCount;
+                mapping.resistanceMICCount += matrixPoint.resistanceMICCount;
+                mapping.resistanceDiscDiffusionCount += matrixPoint.resistanceDiscDiffusionCount;
+                mapping.resistanceQualitativeCount += matrixPoint.resistanceQualitativeCount;
+
+
+                if (discDiffusionPercentileSubRoutine && matrixPoint.discDiffusionValues) {
+                    mapping.discDiffusionValues.push(...matrixPoint.discDiffusionValues);
+                }
+
+                if (micPercentileSubRoutine && matrixPoint.MICValues) {
+                    mapping.MICValues.push(...matrixPoint.MICValues);
+                }
             };
 
             // also store shard specific state
@@ -66,6 +94,11 @@ export default class InfectReducer {
             data.counters.filteredModelCount += mappingResults.counters.filteredModelCount;
             data.counters.totalModelCount += mappingResults.counters.totalModelCount;
             data.counters.invalidModelCount += mappingResults.counters.invalidModelCount;
+
+            data.counters.resistanceMICCount += mappingResults.counters.resistanceMICCount;
+            data.counters.resistanceDiscDiffusionCount += mappingResults.counters.resistanceDiscDiffusionCount;
+            data.counters.resistanceQualitativeCount += mappingResults.counters.resistanceQualitativeCount;
+
             data.timings.preparation += mappingResults.timings.preparation;
             data.timings.filtering += mappingResults.timings.filtering;
         };
@@ -81,7 +114,7 @@ export default class InfectReducer {
         }
 
 
-        // compute ci
+        // compute ci, percentiles
         for (const matrixPoint of matrix.values()) {
             const ci = this.ciClaculator.compute({
                 susceptibleCount: matrixPoint.susceptible,
@@ -93,6 +126,29 @@ export default class InfectReducer {
                 upperBound: ci.confidenceIntervalUpperBound,
                 lowerBound: ci.confidenceIntervalLowerBound,
             };
+
+            if (matrixPoint.discDiffusionValues) {
+                if (discDiffusionPercentileSubRoutine && matrixPoint.discDiffusionValues.length) {
+                    matrixPoint.discDiffusionPercentile90 = this.percentileCaluclator.compute({
+                        values: matrixPoint.discDiffusionValues,
+                        min: 0,
+                        logScale: true,
+                    });
+                }
+
+                delete matrixPoint.discDiffusionValues;
+            }
+
+            if (matrixPoint.MICValues) {
+                if (micPercentileSubRoutine && matrixPoint.MICValues.length) {
+                    matrixPoint.MICPercentile90 = this.percentileCaluclator.compute({
+                        values: matrixPoint.MICValues,
+                        min: 0,
+                    });
+                }
+
+                delete matrixPoint.MICValues;
+            }
         }
 
         // totals & results

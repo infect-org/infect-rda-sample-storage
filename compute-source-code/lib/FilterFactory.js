@@ -2,6 +2,7 @@ import AllOfComparator from './comparator/AllOfComparator.js';
 import GreaterEqualThanComparator from './comparator/GreaterEqualThanComparator.js';
 import GreaterThanComparator from './comparator/GreaterThanComparator.js';
 import OneOfComparator from './comparator/OneOfComparator.js';
+import OneOfManyComparator from './comparator/OneOfManyComparator.js';
 import SmallerEqualThanComparator from './comparator/SmallerEqualThanComparator.js';
 import SmallerThanComparator from './comparator/SmallerThanComparator.js';
 import SomeOfComparator from './comparator/SomeOfComparator.js';
@@ -18,18 +19,19 @@ export default class FilterFactory {
 
 
     async load() {
-        this.registerComparator('all-of', AllOfComparator);
-        this.registerComparator('greater-equal-than', GreaterEqualThanComparator);
-        this.registerComparator('greater-than', GreaterThanComparator);
-        this.registerComparator('one-of', OneOfComparator);
-        this.registerComparator('smaller-equal-than', SmallerEqualThanComparator);
-        this.registerComparator('smaller-than', SmallerThanComparator);
-        this.registerComparator('some-of', SomeOfComparator);
+        this.registerComparator(AllOfComparator);
+        this.registerComparator(GreaterEqualThanComparator);
+        this.registerComparator(GreaterThanComparator);
+        this.registerComparator(OneOfComparator);
+        this.registerComparator(OneOfManyComparator);
+        this.registerComparator(SmallerEqualThanComparator);
+        this.registerComparator(SmallerThanComparator);
+        this.registerComparator(SomeOfComparator);
     }
 
 
-    registerComparator(name, Constructor) {
-        this.comparatorTypes.set(name, Constructor);
+    registerComparator(Constructor) {
+        this.comparatorTypes.set(Constructor.name, Constructor);
     }
 
 

@@ -12,9 +12,13 @@ export default class InfectConfigurationReducer {
     
 
 
-    async compute(sampleSets, {
-        sampleCountFilterLowerThreshold,
-    } = {}) {
+    async compute({ 
+        dataSets,
+        subRoutines,
+        options: {
+            sampleCountFilterLowerThreshold,
+        } = {}
+    }) {
         const start = process.hrtime.bigint();
         const matrix = new Map();
         const data = {
@@ -33,7 +37,7 @@ export default class InfectConfigurationReducer {
 
 
         // combine data
-        for (const { shard, mappingResults } of sampleSets) {
+        for (const { shard, mappingResults } of dataSets) {
             for (const matrixPoint of mappingResults.values) {
                 const id = `${matrixPoint.microorganismId},${matrixPoint.compoundSubstanceId}`;
 
@@ -42,6 +46,7 @@ export default class InfectConfigurationReducer {
                         animalIds: new Set(),
                         regionIds: new Set(),
                         patientSettingIds: new Set(),
+                        sampleSourceIds: new Set(),
                         modelCount: 0,
                         compoundSubstanceId: matrixPoint.compoundSubstanceId,
                         microorganismId: matrixPoint.microorganismId,
@@ -60,6 +65,10 @@ export default class InfectConfigurationReducer {
 
                 for (const id of matrixPoint.patientSettingIds) {
                     mapping.patientSettingIds.add(id);
+                }
+
+                for (const id of matrixPoint.sampleSourceIds) {
+                    mapping.sampleSourceIds.add(id);
                 }
 
                 mapping.modelCount += matrixPoint.modelCount;
@@ -95,6 +104,7 @@ export default class InfectConfigurationReducer {
         const regionIds = new Set();
         const animalIds = new Set();
         const patientSettingIds = new Set();
+        const sampleSourceIds = new Set();
 
 
         for (const [ key, matrixPoint ] of matrix.entries()) {
@@ -112,6 +122,10 @@ export default class InfectConfigurationReducer {
             for (const id of matrixPoint.patientSettingIds.values()) {
                 patientSettingIds.add(id);
             }
+
+            for (const id of matrixPoint.sampleSourceIds.values()) {
+                sampleSourceIds.add(id);
+            }
         }
 
 
@@ -120,6 +134,7 @@ export default class InfectConfigurationReducer {
         data.regionIds = Array.from(regionIds.values());
         data.animalIds = Array.from(animalIds.values());
         data.patientSettingIds = Array.from(patientSettingIds.values());
+        data.sampleSourceIds = Array.from(sampleSourceIds.values());
 
 
         // totals & results
