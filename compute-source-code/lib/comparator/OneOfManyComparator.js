@@ -7,6 +7,6 @@ export default class OneOfManyComparator extends Comparator  {
     static name = 'one-of-many';
 
     compare(modelFieldValue) {
-        return this.filterValue.some(value => modelFieldValue.includes(value));
+        return modelFieldValue && Array.isArray(modelFieldValue) && this.filterValue.some(value => modelFieldValue.includes(value));
     }
 }
