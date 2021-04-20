@@ -52,7 +52,7 @@ export default class InfectModel extends Model {
             uniqueIdentifier,
         });
 
-        if (!resistanceQualitative) {
+        if (!resistanceQualitative && !resistanceQuantitativeDiscDiffusion && !resistanceQuantitativeMic) {
             this.setInValid();
         }
 
