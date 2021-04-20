@@ -74,12 +74,12 @@ export default class PercentileCalculator {
 
                 slots[i] = {
                     fromValue: currentMin,
-                    toValue:currentMax,
+                    toValue: currentMax,
                     sampleCount: 0,
                 };
 
                 while(sortedValues.length > valueIndex && 
-                      sortedValues[valueIndex] > currentMin && 
+                      sortedValues[valueIndex] >= currentMin &&
                       sortedValues[valueIndex] <= currentMax) {
 
                     slots[i].sampleCount++;
