@@ -132,7 +132,6 @@ export default class InfectReducer {
                     matrixPoint.discDiffusionPercentile90 = this.percentileCaluclator.compute({
                         values: matrixPoint.discDiffusionValues,
                         min: 0,
-                        logScale: true,
                     });
                 }
 
@@ -144,6 +143,7 @@ export default class InfectReducer {
                     matrixPoint.MICPercentile90 = this.percentileCaluclator.compute({
                         values: matrixPoint.MICValues,
                         min: 0,
+                        logScale: true,
                     });
                 }
 
