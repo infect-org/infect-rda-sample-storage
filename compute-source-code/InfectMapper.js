@@ -116,10 +116,24 @@ export default class InfectMapper {
         };
 
 
+        // canont return maps -> return arrays
+        const values = Array.from(mappingMap.values());
+
+        for (const value of values) {
+            if (value.MICValues) {
+                value.MICValues = Array.from(value.MICValues.entries());
+            }
+
+            if (value.discDiffusionValues) {
+                value.discDiffusionValues = Array.from(value.discDiffusionValues.entries());
+            }
+        }
+
+
         const filterDuration = process.hrtime.bigint()-filterStart;
         const divider = BigInt(1000000);
         return {
-            values: Array.from(mappingMap.values()),
+            values,
             counters: {
                 filteredModelCount,
                 invalidModelCount,

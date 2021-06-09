@@ -88,12 +88,16 @@ export default class InfectReducer {
 
 
                 if (discDiffusionPercentileSubRoutine && matrixPoint.discDiffusionValues) {
+                    matrixPoint.discDiffusionValues = new Map(matrixPoint.discDiffusionValues);
+
                     for (const [key, value] of mapping.discDiffusionValues.entries()) {
                         mapping.discDiffusionValues.set(key, value + matrixPoint.discDiffusionValues.get(key));
                     }
                 }
 
                 if (micPercentileSubRoutine && matrixPoint.MICValues) {
+                    matrixPoint.MICValues = new Map(matrixPoint.MICValues);
+                    
                     for (const [key, value] of mapping.MICValues.entries()) {
                         mapping.MICValues.set(key, value + matrixPoint.MICValues.get(key));
                     }
