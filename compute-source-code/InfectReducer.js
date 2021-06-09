@@ -151,8 +151,7 @@ export default class InfectReducer {
             if (matrixPoint.discDiffusionValues) {
                 if (discDiffusionPercentileSubRoutine && matrixPoint.discDiffusionValues.size) {
                     matrixPoint.discDiffusionPercentile90 = this.percentileCaluclator.compute({
-                        values: this.flattenArrayMap(matrixPoint.discDiffusionValues),
-                        min: 0,
+                        valueMap: matrixPoint.discDiffusionValues,
                     });
                 }
 
@@ -162,9 +161,7 @@ export default class InfectReducer {
             if (matrixPoint.MICValues) {
                 if (micPercentileSubRoutine && matrixPoint.MICValues.size) {
                     matrixPoint.MICPercentile90 = this.percentileCaluclator.compute({
-                        values: this.flattenArrayMap(matrixPoint.MICValues),
-                        min: 0,
-                        logScale: true,
+                        valueMap: matrixPoint.MICValues,
                     });
                 }
 
@@ -179,13 +176,5 @@ export default class InfectReducer {
         data.counters.filteredPercent = Math.round(data.counters.filteredModelCount / data.counters.totalModelCount * 100, 2);
 
         return data;
-    }
-
-
-    flattenArrayMap(map) {
-        return Array.from(map.entries())
-            .map(([value, occurences]) => Array.apply(null, { length: occurences })
-                .map(() => value))
-            .reduce((prev, current) => prev.concat(current), []);
     }
 }
