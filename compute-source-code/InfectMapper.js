@@ -7,7 +7,17 @@ export default class InfectMapper {
 
     constructor() {
         this.filterFactory = new InfectFilterFactory();
+
+        // slots used for mic values. Each value will put into one of thos slots
+        // 0.001 ... 0.512 + 1 ... 512
+        this.micSlots = Array.apply(null, {length:10}).map((v, i) => Math.pow(2, i)/1000)
+                .concat(Array.apply(null, {length:10}).map((v, i) => Math.pow(2, i)));
+
+        // disc diffusion slots. each value will be assigned to one of the slots
+        // 5 ... 50
+        this.ddSlots = Array.apply(null, {length:46}).map((v, i) => i + 5);
     }
+
 
 
 
@@ -56,8 +66,13 @@ export default class InfectMapper {
                         resistanceQualitativeCount: 0,
                     };
 
-                    if (discDiffusionPercentileSubRoutine) data.discDiffusionValues = [];
-                    if (micPercentileSubRoutine) data.MICValues = [];
+                    if (discDiffusionPercentileSubRoutine) {
+                        data.discDiffusionValues = new Map(this.ddSlots.map(v => ([v, 0])));
+                    }
+                    if (micPercentileSubRoutine) {
+                        data.MICValues = new Map(this.micSlots.map(v => ([v, 0])));
+                    }
+
 
                     mappingMap.set(id, data);
                 }
@@ -80,7 +95,7 @@ export default class InfectMapper {
                     mapping.resistanceMICCount++;
 
                     if (micPercentileSubRoutine) {
-                        mapping.MICValues.push(model.getValue('resistanceQuantitativeMic'));
+                        this.addValueToSlot(this.micSlots, mapping.MICValues, model.getValue('resistanceQuantitativeMic'), true);
                     }
                 }
                 
@@ -90,7 +105,7 @@ export default class InfectMapper {
                     mapping.resistanceDiscDiffusionCount++;
 
                     if (discDiffusionPercentileSubRoutine) {
-                        mapping.discDiffusionValues.push(model.getValue('resistanceQuantitativeDiscDiffusion'));
+                        this.addValueToSlot(this.ddSlots, mapping.discDiffusionValues, model.getValue('resistanceQuantitativeDiscDiffusion'), false);
                     }
                 }
 
@@ -118,6 +133,51 @@ export default class InfectMapper {
                 preparation: Number(preparationDuration)/1000000,
                 filtering: Number(filterDuration)/1000000,
             },
+        }
+    }
+
+
+
+    /**
+     * assigns a value to a given slot by mathicng it and rounding it up or down
+     * if it doesn't match to a slot
+     *
+     * @param      {array}    slots           predefined array of slots that
+     *                                        exist
+     * @param      {map}      sampleSlots     the slots that store the counters
+     *                                        on the matrix points
+     * @param      {number}   sampleValue     the current value
+     * @param      {boolean}  [roundUp=true]  round up or down?
+     */
+    addValueToSlot(slots, sampleSlots, sampleValue, roundUp = true) {
+
+        // set to first of the slots
+        let previousSlotKey = slots[0];
+        let lastSlotKey = slots[slots.length -1];
+
+        // find the correct slot for the value
+        for (const slotKey of slots) {
+            if (sampleValue === slotKey) {
+
+                // value matches slot, put it there
+                sampleSlots.set(slotKey, sampleSlots.get(slotKey) + 1);
+            } else if (sampleValue < slotKey) {
+
+                // value is smaller than that before, put it in the current
+                // slot if rounding up or the previous if rounding down
+                const key = roundUp ? slotKey : previousSlotKey;
+                sampleSlots.set(key, sampleSlots.get(key) + 1);
+            } else if (slotKey === lastSlotKey) {
+
+                // put the last value in the last slot
+                sampleSlots.set(slotKey, sampleSlots.get(slotKey) + 1);
+            } else {
+                previousSlotKey = slotKey;
+                continue;
+            }
+
+            // isn't encountered when the els statement is executed
+            break;
         }
     }
 }

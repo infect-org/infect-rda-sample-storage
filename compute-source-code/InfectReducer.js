@@ -10,6 +10,15 @@ export default class InfectReducer {
     constructor() {
         this.ciClaculator = new ConfidenceIntervalCalculator();
         this.percentileCaluclator = new PercentileCalculator();
+
+        // slots used for mic values. Each value will put into one of thos slots
+        // 0.001 ... 0.512 + 1 ... 512
+        this.micSlots = Array.apply(null, {length:10}).map((v, i) => Math.pow(2, i)/1000)
+                .concat(Array.apply(null, {length:10}).map((v, i) => Math.pow(2, i)));
+
+        // disc diffusion slots. each value will be assigned to one of the slots
+        // 5 ... 50
+        this.ddSlots = Array.apply(null, {length:46}).map((v, i) => i + 5);
     }
     
 
@@ -57,8 +66,12 @@ export default class InfectReducer {
                         resistanceQualitativeCount: 0,
                     };
 
-                    if (discDiffusionPercentileSubRoutine) data.discDiffusionValues = [];
-                    if (micPercentileSubRoutine) data.MICValues = [];
+                    if (discDiffusionPercentileSubRoutine) {
+                        data.discDiffusionValues = new Map(this.ddSlots.map(v => ([v, 0])));
+                    }
+                    if (micPercentileSubRoutine) {
+                        data.MICValues = new Map(this.micSlots.map(v => ([v, 0])));
+                    }
 
                     matrix.set(id, data);
                 }
@@ -75,11 +88,15 @@ export default class InfectReducer {
 
 
                 if (discDiffusionPercentileSubRoutine && matrixPoint.discDiffusionValues) {
-                    mapping.discDiffusionValues.push(...matrixPoint.discDiffusionValues);
+                    for (const [key, value] of mapping.discDiffusionValues.entries()) {
+                        mapping.discDiffusionValues.set(key, value + matrixPoint.discDiffusionValues.get(key));
+                    }
                 }
 
                 if (micPercentileSubRoutine && matrixPoint.MICValues) {
-                    mapping.MICValues.push(...matrixPoint.MICValues);
+                    for (const [key, value] of mapping.MICValues.entries()) {
+                        mapping.MICValues.set(key, value + matrixPoint.MICValues.get(key));
+                    }
                 }
             };
 
@@ -130,7 +147,7 @@ export default class InfectReducer {
             if (matrixPoint.discDiffusionValues) {
                 if (discDiffusionPercentileSubRoutine && matrixPoint.discDiffusionValues.length) {
                     matrixPoint.discDiffusionPercentile90 = this.percentileCaluclator.compute({
-                        values: matrixPoint.discDiffusionValues,
+                        values: this.flattenArrayMap(matrixPoint.discDiffusionValues),
                         min: 0,
                     });
                 }
@@ -141,7 +158,7 @@ export default class InfectReducer {
             if (matrixPoint.MICValues) {
                 if (micPercentileSubRoutine && matrixPoint.MICValues.length) {
                     matrixPoint.MICPercentile90 = this.percentileCaluclator.compute({
-                        values: matrixPoint.MICValues,
+                        values: this.flattenArrayMap(matrixPoint.MICValues),
                         min: 0,
                         logScale: true,
                     });
@@ -158,5 +175,13 @@ export default class InfectReducer {
         data.counters.filteredPercent = Math.round(data.counters.filteredModelCount / data.counters.totalModelCount * 100, 2);
 
         return data;
+    }
+
+
+    flattenArrayMap(map) {
+        return Array.from(map.entries())
+            .map(([value, occurences]) => Array.apply(null, { length: occurences })
+                .map(() => value))
+            .reduce((prev, current) => prev.concat(current), []);
     }
 }
