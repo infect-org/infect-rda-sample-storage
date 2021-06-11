@@ -10,8 +10,10 @@ export default class InfectMapper {
 
         // slots used for mic values. Each value will put into one of thos slots
         // 0.001 ... 0.512 + 1 ... 512
-        this.micSlots = Array.apply(null, {length:10}).map((v, i) => Math.pow(2, i)/1000)
-                .concat(Array.apply(null, {length:10}).map((v, i) => Math.pow(2, i)));
+        this.micSlots = Array.apply(null, {length:20})
+            .map((v, i) => i)
+            .reverse()
+            .map(v => Math.ceil((512 / Math.pow(2, v)) * 1000) / 1000);
 
         // disc diffusion slots. each value will be assigned to one of the slots
         // 5 ... 50
