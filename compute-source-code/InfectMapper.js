@@ -17,7 +17,7 @@ export default class InfectMapper {
 
         // disc diffusion slots. each value will be assigned to one of the slots
         // 5 ... 50
-        this.ddSlots = Array.apply(null, {length:46}).map((v, i) => i + 5);
+        this.ddSlots = Array.apply(null, {length:45}).map((v, i) => i + 6);
     }
 
 
